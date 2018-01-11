@@ -1,0 +1,10 @@
+FROM phenomique/raspberry-sane-git
+RUN apt-get update \
+    && apt-get install -y python3 python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+RUN pip3 install tox
+
+# This is a bit hackish but necessary because Jenkins runs container with the
+# UID of the jenkins user on the node and pytest wan't to find the home
+# directory of the current user.
+RUN useradd --uid 1001 --create-home jenkins
