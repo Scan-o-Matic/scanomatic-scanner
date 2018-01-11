@@ -8,3 +8,8 @@ def pytest_addoption(parser):
         default=False,
         help="run tests using an actual scanner"
     )
+
+
+@pytest.fixture
+def fixturesdir(request):
+    return request.config.rootdir.join('tests/fixtures')
