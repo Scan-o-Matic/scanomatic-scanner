@@ -3,8 +3,8 @@ from pathlib import Path
 
 
 class ScanStore:
-    def __init__(self, dir):
-        self.path = Path(dir)
+    def __init__(self, dirpath):
+        self.path = Path(dirpath)
         self.path.mkdir(parents=True, exist_ok=True)
 
     def put(self, scan):
