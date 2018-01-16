@@ -42,7 +42,7 @@ class TestScanStore:
     def test_length_empty(self, tmpdir, scanstore):
         assert len(scanstore) == 0
 
-    def test_length_counds_tiff_files(self, tmpdir, scanstore):
+    def test_length_counts_tiff_files(self, tmpdir, scanstore):
         tmpdir.join('file1.tiff').ensure(file=True)
         tmpdir.join('file1.json').ensure(file=True)
         tmpdir.join('file2.tiff').ensure(file=True)
