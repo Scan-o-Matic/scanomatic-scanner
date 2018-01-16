@@ -58,12 +58,11 @@ class TestScanimageScannerController:
         fakescanimage.setdevices(
             'epson2:libusb:123:456', 'epson2:libusb:321:654'
         )
-        with pytest.warns(
-            UserWarning,
+        with pytest.raises(
+            ScannerError,
             match=r'Scanimage detected multiple scanners'
         ):
-            scanner = ScanimageScannerController()
-        assert scanner.device_name == 'epson2:libusb:123:456'
+            ScanimageScannerController()
 
     def test_init_error(self, fakescanimage):
         fakescanimage.install()

@@ -28,11 +28,10 @@ class ScanimageScannerController:
         if len(devices) == 1:
             self.device_name = devices[0]
         elif len(devices) > 1:
-            warnings.warn(
+            raise ScannerError(
                 'Scanimage detected multiple scanners: {}'
                 .format(' '.join(devices))
             )
-            self.device_name = devices[0]
         else:
             raise ScannerError('No scanner detected')
 
