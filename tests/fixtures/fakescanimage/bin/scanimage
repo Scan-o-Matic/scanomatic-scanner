@@ -1,0 +1,19 @@
+#!/bin/bash -eu
+
+if [ ! -z ${FAKESCANIMAGE_ERROR+x} ]; then
+    echo ${FAKESCANIMAGE_ERROR} >&2
+    exit 1
+fi
+
+case  $1 in
+    -f)
+        for d in ${FAKESCANIMAGE_DEVICES="epson2:fake:123:456"}
+        do
+            echo "$d"
+        done
+        ;;
+    *)
+        convert -size 4800x6000 -colorspace gray -depth 8 xc:white tiff:-
+        exit 0
+        ;;
+esac
