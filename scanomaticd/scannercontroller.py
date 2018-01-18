@@ -15,6 +15,10 @@ SCANIMAGE_OPTS = [
     '-x', '203.2',
     '-y', '254',
     '--depth', '8',
+    '|', 'convert'
+    '-',
+    '-compress', 'lzw',
+    '-'
 ]
 
 

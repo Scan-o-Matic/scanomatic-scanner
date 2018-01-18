@@ -3,6 +3,7 @@ RUN apt-get update  && apt-get install -y \
     libsane \
     python3 \
     python3-pip \
+    imagemagick \
     && rm -rf /var/lib/apt/lists/*
 RUN echo "usb 0x4b8 0x12c" >> /etc/sane.d/epson2.conf
 RUN echo "usb 0x4b8 0x151" >> /etc/sane.d/epson2.conf
