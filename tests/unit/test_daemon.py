@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from time import sleep
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call
 
 from apscheduler.schedulers.background import BackgroundScheduler
 import pytest
@@ -9,38 +9,70 @@ from scanomaticd.daemon import ScanDaemon
 from scanomaticd.scanning import ScanningJob
 
 
+class FakeScanCommand:
+    def __init__(self):
+        self.start = datetime.now()
+        self.calls = []
+
+    def __call__(self, *args, **kwargs):
+        delta = datetime.now() - self.start
+        seconds = round(delta.total_seconds())
+        self.calls.append((seconds, call(*args, **kwargs)))
+
+
 @pytest.fixture
 def fakescancommand():
-    return MagicMock()
+    return FakeScanCommand()
 
 
 @pytest.fixture
 def daemon(fakescancommand):
-    job = ScanningJob(
-        id='1234',
-        interval=timedelta(seconds=2),
-        end_time=datetime.now() + timedelta(seconds=5),
-    )
     daemon = ScanDaemon(job, fakescancommand, scheduler=BackgroundScheduler)
+    daemon.start()
     yield daemon
     daemon.stop()
 
 
-def test_scandaemon_scans_on_start(daemon, fakescancommand):
-    assert fakescancommand.execute.call_count == 0
-    daemon.start()
-    assert fakescancommand.execute.call_count == 1
+@pytest.fixture
+def job():
+    return ScanningJob(
+        id='1234',
+        interval=timedelta(seconds=2),
+        end_time=datetime.now() + timedelta(seconds=5),
+    )
 
 
-def test_scandaemon_scans_every_interval(daemon, fakescancommand):
-    daemon.start()
-    sleep(2)
-    assert fakescancommand.execute.call_count == 2
-    sleep(2)
-    assert fakescancommand.execute.call_count == 3
+class TestSetScanningJob:
+    def test_complete_scanning_job(self, daemon, job, fakescancommand):
+        daemon.set_scanning_job(job)
+        sleep(7)
+        assert fakescancommand.calls == [
+            (0, call(job)),
+            (2, call(job)),
+            (4, call(job)),
+        ]
 
+    def test_replace_existing_job(self, daemon, job, fakescancommand):
+        daemon.set_scanning_job(job)
+        sleep(1)
+        job2 = ScanningJob(
+            id='1235',
+            interval=timedelta(seconds=4),
+            end_time=datetime.now() + timedelta(seconds=5),
+        )
+        daemon.set_scanning_job(job2)
+        sleep(4)
+        assert fakescancommand.calls == [
+            (0, call(job)),
+            (1, call(job2)),
+            (5, call(job2)),
+        ]
 
-def test_scandaemon_stops_after_endtime(daemon, fakescancommand):
-    daemon.start()
-    sleep(8)
-    assert fakescancommand.execute.call_count == 3
+    def test_cancel_existing_job(self, daemon, job, fakescancommand):
+        daemon.set_scanning_job(job)
+        sleep(1)
+        daemon.set_scanning_job(None)
+        sleep(2)
+        assert fakescancommand.calls == [
+            (0, call(job)),
+        ]
