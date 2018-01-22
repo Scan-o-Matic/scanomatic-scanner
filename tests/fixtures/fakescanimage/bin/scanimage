@@ -13,7 +13,7 @@ case  $1 in
         done
         ;;
     *)
-        convert -size 4800x6000 -colorspace gray -depth 8 xc:white tiff:-
+        convert -size 4800x6000 -colorspace gray -depth 8 -alpha off gradient: tiff:-
         exit 0
         ;;
 esac
