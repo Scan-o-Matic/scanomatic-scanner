@@ -10,8 +10,10 @@ HeartbeatJob = namedtuple('HeartbeatJob', ['id', 'interval'])
 
 
 class HeartbeatCommand:
-    def __init__(self, job):
+    def __init__(self, job, client):
         self._job = job
+        self._client = client
 
     def execute(self):
         LOG.debug("heartbeat")
+        self._client.post_status("")

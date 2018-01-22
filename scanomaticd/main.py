@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 import logging
 
@@ -6,6 +7,7 @@ from .scannercontroller import ScanimageScannerController, ScannerError
 from .scanning import ScanCommand, ScanningJob
 from .scanstore import ScanStore
 from .heartbeat import HeartbeatCommand, HeartbeatJob
+from .client import Client
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s')
 LOG = logging.getLogger(__name__)
@@ -32,7 +34,9 @@ if __name__ == '__main__':
         id='fakebeat',
         interval=timedelta(seconds=1)
     )
-    heartbeatcommand = HeartbeatCommand(heartbeatjob, scanner)
+    client = Client(
+        "localhost:5000", (os.getenv("SOM_USER"), os.getenv("SOM_PASSWORD")))
+    heartbeatcommand = HeartbeatCommand(heartbeatjob, client)
 
     daemon = ScanDaemon(scanjob, scancommand, heartbeatcommand, heartbeatjob)
     daemon.start()
