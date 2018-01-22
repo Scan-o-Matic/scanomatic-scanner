@@ -5,10 +5,25 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 
 class ScanDaemon:
     JOBID_SCANNING = 'scanning'
+    JOBID_UPDATESCANNINGJOB = 'update-scanning-job'
+    INTERVAL_UPDATESCANNINGJOB = 60
 
-    def __init__(self, scanningjob, scancommand, scheduler=BlockingScheduler):
+    def __init__(
+        self, updatecommand, scancommand, scheduler=BlockingScheduler
+    ):
         self._scheduler = scheduler()
         self._scancommand = scancommand
+        self._job = None
+        self._scheduler.add_job(
+            updatecommand,
+            args=(self, self._job),
+            trigger='interval',
+            coalesce=True,
+            id=self.JOBID_UPDATESCANNINGJOB,
+            max_instances=1,
+            next_run_time=datetime.now(),
+            seconds=self.INTERVAL_UPDATESCANNINGJOB,
+        )
 
     def set_scanning_job(self, job):
         if job is None:

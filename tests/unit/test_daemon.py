@@ -9,7 +9,7 @@ from scanomaticd.daemon import ScanDaemon
 from scanomaticd.scanning import ScanningJob
 
 
-class FakeScanCommand:
+class FakeCommand:
     def __init__(self):
         self.start = datetime.now()
         self.calls = []
@@ -22,12 +22,19 @@ class FakeScanCommand:
 
 @pytest.fixture
 def fakescancommand():
-    return FakeScanCommand()
+    return FakeCommand()
 
 
 @pytest.fixture
-def daemon(fakescancommand):
-    daemon = ScanDaemon(job, fakescancommand, scheduler=BackgroundScheduler)
+def fakeupdatecommand():
+    return FakeCommand()
+
+
+@pytest.fixture
+def daemon(fakescancommand, fakeupdatecommand):
+    daemon = ScanDaemon(
+        fakeupdatecommand, fakescancommand, scheduler=BackgroundScheduler
+    )
     daemon.start()
     yield daemon
     daemon.stop()
@@ -42,6 +49,7 @@ def job():
     )
 
 
+@pytest.mark.slow
 class TestSetScanningJob:
     def test_complete_scanning_job(self, daemon, job, fakescancommand):
         daemon.set_scanning_job(job)
@@ -75,4 +83,15 @@ class TestSetScanningJob:
         sleep(2)
         assert fakescancommand.calls == [
             (0, call(job)),
+        ]
+
+
+@pytest.mark.slow
+class TestUpdateCommand:
+    def test_run_every_minutes(self, daemon, fakeupdatecommand):
+        sleep(120)
+        assert fakeupdatecommand.calls == [
+            (0, call(daemon, None)),
+            (60, call(daemon, None)),
+            (120, call(daemon, None)),
         ]
