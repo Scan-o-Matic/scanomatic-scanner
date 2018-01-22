@@ -7,7 +7,7 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 
-class Client:
+class Gateway:
 
     def __init__(self, host, auth):
         self._uuid = None

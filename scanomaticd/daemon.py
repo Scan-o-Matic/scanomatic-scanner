@@ -3,7 +3,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 
 class ScanDaemon:
     def __init__(
-            self, scanningjob, scancommand, heartbeatjob, heartbeatcommand,
+            self, scanningjob, scancommand, heartinterval, heartcommand,
             scheduler=BlockingScheduler):
         self._scheduler = scheduler()
 
@@ -16,9 +16,9 @@ class ScanDaemon:
         )
 
         self._scheduler.add_job(
-            heartbeatcommand.execute,
+            heartcommand.execute,
             'interval',
-            seconds=heartbeatjob.interval.total_seconds(),
+            seconds=heartinterval.total_seconds(),
         )
 
     def start(self):

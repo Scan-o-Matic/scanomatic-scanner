@@ -6,14 +6,10 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 
-HeartbeatJob = namedtuple('HeartbeatJob', ['id', 'interval'])
-
-
 class HeartbeatCommand:
-    def __init__(self, job, client):
-        self._job = job
-        self._client = client
+    def __init__(self, gateway):
+        self._gateway = gateway
 
     def execute(self):
         LOG.debug("heartbeat")
-        self._client.post_status("")
+        self._gateway.post_status("")

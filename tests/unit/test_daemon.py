@@ -7,7 +7,6 @@ import pytest
 
 from scanomaticd.daemon import ScanDaemon
 from scanomaticd.scanning import ScanningJob
-from scanomaticd.heartbeat import HeartbeatJob
 
 
 @pytest.fixture
@@ -28,15 +27,12 @@ def daemon(fakescancommand, fakeheartbeatcommand):
         end_time=datetime.now() + timedelta(seconds=5),
     )
 
-    heartbeatjob = HeartbeatJob(
-        id='5678',
-        interval=timedelta(seconds=1)
-    )
+    heartbeat = timedelta(seconds=1)
 
     daemon = ScanDaemon(
         scanjob,
         fakescancommand,
-        heartbeatjob,
+        heartbeat,
         fakeheartbeatcommand,
         scheduler=BackgroundScheduler
     )

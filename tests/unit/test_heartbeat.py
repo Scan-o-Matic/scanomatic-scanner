@@ -2,8 +2,8 @@ import mock
 from scanomaticd.heartbeat import HeartbeatCommand
 
 
-@mock.patch("scanomaticd.client.Client")
-def test_heartbeat_execute(mocklient):
-    heartbeat = HeartbeatCommand("dummyjob", mocklient)
+@mock.patch("scanomaticd.gateway.Gateway")
+def test_heartbeat_execute(mockway):
+    heartbeat = HeartbeatCommand(mockway)
     heartbeat.execute()
-    mocklient.post_status.assert_called_once()
+    mockway.post_status.assert_called_once()

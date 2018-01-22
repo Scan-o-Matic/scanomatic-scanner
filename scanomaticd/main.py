@@ -30,13 +30,10 @@ if __name__ == '__main__':
     store = ScanStore('/var/scanomaticd/scans')
     scancommand = ScanCommand(scanjob, scanner, store)
 
-    heartbeatjob = HeartbeatJob(
-        id='fakebeat',
-        interval=timedelta(seconds=1)
-    )
+    heartbeat = timedelta(seconds=1)
     client = Client(
         "localhost:5000", (os.getenv("SOM_USER"), os.getenv("SOM_PASSWORD")))
-    heartbeatcommand = HeartbeatCommand(heartbeatjob, client)
+    heartbeatcommand = HeartbeatCommand(client)
 
-    daemon = ScanDaemon(scanjob, scancommand, heartbeatcommand, heartbeatjob)
+    daemon = ScanDaemon(scanjob, scancommand, heartbeat, heartbeatcommand)
     daemon.start()
