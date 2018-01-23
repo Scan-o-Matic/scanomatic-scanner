@@ -15,7 +15,7 @@ class APIGateway:
 
     def get_scanner_job(self, scannerid):
         response = requests.get(
-            self.apibase + '/scanners/sc4nn3r/job'
+            self.apibase + '/scanners/{}/job'.format(scannerid)
         )
         try:
             response.raise_for_status()
