@@ -10,12 +10,16 @@ class APIError(Exception):
 
 
 class APIGateway:
-    def __init__(self, apibase):
+    def __init__(self, apibase, scannerid, username, password):
         self.apibase = apibase
+        self.scannerid = scannerid
+        self.username = username
+        self.password = password
 
-    def get_scanner_job(self, scannerid):
+    def get_scanner_job(self):
         response = requests.get(
-            self.apibase + '/scanners/{}/job'.format(scannerid)
+            self.apibase + '/scanners/{}/job'.format(self.scannerid),
+            auth=(self.username, self.password),
         )
         try:
             response.raise_for_status()
