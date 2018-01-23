@@ -35,9 +35,12 @@ class ScanimageScannerController:
         else:
             raise ScannerError('No scanner detected')
 
-    def scan(self):
+    def scan(self, compress=True):
         scanproc = self._run_scanimage('-d', self.device_name, *SCANIMAGE_OPTS)
-        return self._run_compress_image(scanproc.stdout).stdout
+        if compress:
+            return self._run_compress_image(scanproc.stdout).stdout
+        else:
+            return scanproc.stdout
 
     def _get_devices(self):
         proc = self._run_scanimage('-f', '%d%n')

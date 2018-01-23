@@ -80,6 +80,15 @@ class TestScanimageScannerController:
         assert img.height == 6000
         assert img.mode == PIL_8BITS_BW_MODE
 
+    @pytest.mark.usefixtures('usbscanner')
+    def test_scan_compression(self):
+        scanner = ScanimageScannerController()
+        data_cmp = scanner.scan(compress=True)
+        data_raw = scanner.scan(compress=False)
+        img_cmp = Image.open(BytesIO(data_cmp))
+        img_raw = Image.open(BytesIO(data_raw))
+        assert img_cmp.tobytes() == img_raw.tobytes()
+
     def test_scan_error(self, fakescanimage):
         fakescanimage.install()
         scanner = ScanimageScannerController()
