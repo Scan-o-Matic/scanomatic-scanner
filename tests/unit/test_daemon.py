@@ -74,7 +74,7 @@ class TestSetScanningJob:
             end_time=datetime.now() + timedelta(seconds=5),
         )
         daemon.set_scanning_job(job2)
-        sleep(4)
+        sleep(5)
         assert fakescancommand.calls == [
             (0, call(job)),
             (1, call(job2)),
