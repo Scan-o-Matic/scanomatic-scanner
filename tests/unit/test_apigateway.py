@@ -44,7 +44,7 @@ class TestGetScannerJob:
         responses.add(
             responses.GET, self.URI, json={
                 'identifier': 'j0b',
-                'start': '1985-10-26T01:20:00Z',
+                'startTime': '1985-10-26T01:20:00Z',
                 'duration': 240,
                 'interval': 60,
             },

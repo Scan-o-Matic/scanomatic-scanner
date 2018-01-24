@@ -28,7 +28,7 @@ class APIGateway:
         data = response.json()
         if data is None:
             return
-        start = _parse_datetime(data['start'])
+        start = _parse_datetime(data['startTime'])
         duration = timedelta(seconds=data['duration'])
         end = start + duration
         return ScanningJob(
