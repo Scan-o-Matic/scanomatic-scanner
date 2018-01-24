@@ -10,7 +10,6 @@ import requests
 
 SCANDURATION = timedelta(minutes=3)
 APIROOT = 'https://som.molflow.com/api'
-APIROOT = 'http://192.168.74.130:5050/api'
 USERNAME = os.environ['SCANOMATIC_USERNAME']
 PASSWORD = os.environ['SCANOMATIC_PASSWORD']
 
