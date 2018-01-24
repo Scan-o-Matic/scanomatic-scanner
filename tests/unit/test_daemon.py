@@ -49,8 +49,12 @@ def job():
     )
 
 
-@pytest.mark.slow
 class TestSetScanningJob:
+    def test_remember_set_job(self, daemon, job):
+        daemon.set_scanning_job(job)
+        assert daemon.get_scanning_job() == job
+
+    @pytest.mark.slow
     def test_complete_scanning_job(self, daemon, job, fakescancommand):
         daemon.set_scanning_job(job)
         sleep(7)
@@ -60,6 +64,7 @@ class TestSetScanningJob:
             (4, call(job)),
         ]
 
+    @pytest.mark.slow
     def test_replace_existing_job(self, daemon, job, fakescancommand):
         daemon.set_scanning_job(job)
         sleep(1)
@@ -76,6 +81,7 @@ class TestSetScanningJob:
             (5, call(job2)),
         ]
 
+    @pytest.mark.slow
     def test_cancel_existing_job(self, daemon, job, fakescancommand):
         daemon.set_scanning_job(job)
         sleep(1)
@@ -91,7 +97,7 @@ class TestUpdateCommand:
     def test_run_every_minutes(self, daemon, fakeupdatecommand):
         sleep(120)
         assert fakeupdatecommand.calls == [
-            (0, call(daemon, None)),
-            (60, call(daemon, None)),
-            (120, call(daemon, None)),
+            (0, call(daemon)),
+            (60, call(daemon)),
+            (120, call(daemon)),
         ]

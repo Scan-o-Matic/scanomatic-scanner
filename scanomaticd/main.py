@@ -27,9 +27,13 @@ if __name__ == '__main__':
         LOG.critical("Can't initialise scanner controller: %s", str(error))
         exit(1)
     store = ScanStore('/var/scanomaticd/scans')
-    apigateway = APIGateway(os.environ['SCANOMATICD_APIURL'])
-    scannerid = os.environ['SCANOMATICD_SCANNERID']
+    apigateway = APIGateway(
+        os.environ['SCANOMATICD_APIROOT'],
+        os.environ['SCANOMATICD_SCANNERID'],
+        os.environ['SCANOMATICD_APIUSERNAME'],
+        os.environ['SCANOMATICD_APIPASSWORD'],
+    )
     scan_command = ScanCommand(scanner, store)
-    update_command = UpdateScanningJobCommand(scannerid, apigateway)
+    update_command = UpdateScanningJobCommand(apigateway)
     daemon = ScanDaemon(update_command, scan_command)
     daemon.start()

@@ -14,14 +14,16 @@ class TestUpdateScanningJobCommand:
     def command(self, job):
         apigateway = MagicMock()
         apigateway.get_scanner_job.return_value = job
-        return UpdateScanningJobCommand('sc4nn3r', apigateway)
+        return UpdateScanningJobCommand(apigateway)
 
     def test_it_sets_scanjob(self, command, job):
         daemon = MagicMock()
-        command(daemon, None)
-        daemon.set_scanjob.assert_called_with(job)
+        daemon.get_scanning_job.return_value = None
+        command(daemon)
+        daemon.set_scanning_job.assert_called_with(job)
 
     def test_doesnt_set_scanjob_if_not_changed(self, command, job):
         daemon = MagicMock()
-        command(daemon, job)
-        daemon.set_scanjob.assert_not_called()
+        daemon.get_scanning_job.return_value = job
+        command(daemon)
+        daemon.set_scanning_job.assert_not_called()

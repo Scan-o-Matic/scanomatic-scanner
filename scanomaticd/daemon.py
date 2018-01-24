@@ -16,7 +16,7 @@ class ScanDaemon:
         self._job = None
         self._scheduler.add_job(
             updatecommand,
-            args=(self, self._job),
+            args=(self,),
             trigger='interval',
             coalesce=True,
             id=self.JOBID_UPDATESCANNINGJOB,
@@ -41,6 +41,10 @@ class ScanDaemon:
                 end_date=job.end_time,
                 seconds=job.interval.total_seconds(),
             )
+        self._job = job
+
+    def get_scanning_job(self):
+        return self._job
 
     def start(self):
         self._scheduler.start()
