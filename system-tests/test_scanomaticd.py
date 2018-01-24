@@ -32,9 +32,10 @@ def scanning_job(scannerid):
     print(response.json())
     response.raise_for_status()
     jobid = response.json()['jobId']
-    (requests
-        .post(APIROOT + '/scan-jobs/{}/start'.format(jobid))
-        .raise_for_status())
+    requests.post(
+        APIROOT + '/scan-jobs/{}/start'.format(jobid),
+        auth=(USERNAME, PASSWORD),
+    ).raise_for_status()
 
 
 @pytest.fixture(autouse=True)
