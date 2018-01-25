@@ -11,18 +11,14 @@ class ScanStore:
         self.path.mkdir(parents=True, exist_ok=True)
 
     def put(self, scan):
-        basename = '{jobid}_{timestamp}'.format(
-            jobid=scan.job_id,
-            timestamp=int(scan.start_time.timestamp()),
-        )
         # ⚠ The order of the following calls matter: because we use the image
         # files to determine how many/which scans are in the store, the image
         # file must appear last.
-        self._save_metadata(scan, basename)
-        self._save_image(scan, basename)
+        self._save_metadata(scan)
+        self._save_image(scan)
 
-    def _save_metadata(self, scan, basename):
-        jsonpath = self.path.joinpath(basename + '.json')
+    def _save_metadata(self, scan):
+        jsonpath = self._jsonpath(scan)
         json_metadata = {
             'jobId': scan.job_id,
             'startTime': scan.start_time.timestamp(),
@@ -32,8 +28,8 @@ class ScanStore:
         with jsonpath.open('w') as file:
             json.dump(json_metadata, file)
 
-    def _save_image(self, scan, basename):
-        imgpath = self.path.joinpath(basename + '.tiff')
+    def _save_image(self, scan):
+        imgpath = self._imagepath(scan)
         tmppath = imgpath.with_suffix('.tmp')
         with tmppath.open('wb') as file:
             file.write(scan.data)
@@ -58,3 +54,17 @@ class ScanStore:
 
     def _get_datetime(self, timestamp):
         return datetime.fromtimestamp(timestamp, tz=timezone.utc)
+
+    def delete(self, scan):
+        self._imagepath(scan).unlink()
+        self._jsonpath(scan).unlink()
+
+    def _jsonpath(self, scan):
+        return self._imagepath(scan).with_suffix('.json')
+
+    def _imagepath(self, scan):
+        basename = '{jobid}_{timestamp}'.format(
+            jobid=scan.job_id,
+            timestamp=int(scan.start_time.timestamp()),
+        )
+        return self.path.joinpath(basename + '.tiff')

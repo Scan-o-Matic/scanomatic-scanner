@@ -92,3 +92,22 @@ class TestScanStore:
                 digest='foo:baz',
             ),
         ]
+
+    def test_delete_scan(test, tmpdir, scanstore, scan):
+        scanstore.put(scan)
+        scanstore.delete(scan)
+        assert len(scanstore) == 0
+
+    def test_delete_only_one(test, tmpdir, scanstore, scan):
+        scan2 = Scan(
+            data=b'foobaz',
+            job_id='abcd',
+            start_time=datetime(1985, 10, 26, 1, 30, tzinfo=timezone.utc),
+            end_time=datetime(1985, 10, 26, 1, 31, tzinfo=timezone.utc),
+            digest='foo:baz',
+        )
+        scanstore.put(scan)
+        scanstore.put(scan2)
+        scanstore.delete(scan)
+        assert len(scanstore) == 1
+        assert list(scanstore) == [scan2]
