@@ -12,10 +12,14 @@ class ScanStore:
             jobid=scan.job_id,
             timestamp=int(scan.start_time.timestamp()),
         )
-        imgpath = self.path.joinpath(basename + '.tiff')
-        with imgpath.open('wb') as file:
-            file.write(scan.data)
-        jsonpath = imgpath.with_suffix('.json')
+        # ⚠ The order of the following calls matter: because we use the image
+        # files to determine how many/which scans are in the store, the image
+        # file must appear last.
+        self._save_metadata(scan, basename)
+        self._save_image(scan, basename)
+
+    def _save_metadata(self, scan, basename):
+        jsonpath = self.path.joinpath(basename + '.json')
         json_metadata = {
             'jobId': scan.job_id,
             'startTime': scan.start_time.isoformat(),
@@ -24,6 +28,13 @@ class ScanStore:
         }
         with jsonpath.open('w') as file:
             json.dump(json_metadata, file)
+
+    def _save_image(self, scan, basename):
+        imgpath = self.path.joinpath(basename + '.tiff')
+        tmppath = imgpath.with_suffix('.tmp')
+        with tmppath.open('wb') as file:
+            file.write(scan.data)
+        tmppath.rename(imgpath)
 
     def __len__(self):
         return len(list(self.path.glob('*.tiff')))
