@@ -22,8 +22,8 @@ class ScanStore:
         jsonpath = self.path.joinpath(basename + '.json')
         json_metadata = {
             'jobId': scan.job_id,
-            'startTime': scan.start_time.isoformat(),
-            'endTime': scan.end_time.isoformat(),
+            'startTime': scan.start_time.timestamp(),
+            'endTime': scan.end_time.timestamp(),
             'digest': scan.digest,
         }
         with jsonpath.open('w') as file:

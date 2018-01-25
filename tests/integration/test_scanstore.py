@@ -34,8 +34,8 @@ class TestScanStore:
         assert file.check(file=1)
         assert json.load(file) == {
             'jobId': 'abcd',
-            'startTime': '1985-10-26T01:20:00+00:00',
-            'endTime': '1985-10-26T01:21:00+00:00',
+            'startTime': 499137600.0,
+            'endTime': 499137660.0,
             'digest': 'foo:bar',
         }
 
