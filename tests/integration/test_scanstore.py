@@ -56,3 +56,39 @@ class TestScanStore:
         assert not dir.check(dir=True)
         ScanStore(str(dir))
         assert dir.check(dir=True)
+
+    def test_get_scans_iterator(self, tmpdir, scanstore):
+        with tmpdir.join('scan1.json').open(mode='w') as f:
+            json.dump({
+                'jobId': 'abcd',
+                'startTime': 499137600.0,
+                'endTime': 499137660.0,
+                'digest': 'foo:bar',
+            }, f)
+        with tmpdir.join('scan2.json').open(mode='w') as f:
+            json.dump({
+                'jobId': 'abcd',
+                'startTime': 499138200.0,
+                'endTime': 499138260.0,
+                'digest': 'foo:baz',
+            }, f)
+        with tmpdir.join('scan1.tiff').open(mode='wb') as f:
+            f.write(b'foobar')
+        with tmpdir.join('scan2.tiff').open(mode='wb') as f:
+            f.write(b'foobaz')
+        assert list(scanstore) == [
+            Scan(
+                data=b'foobar',
+                job_id='abcd',
+                start_time=datetime(1985, 10, 26, 1, 20, tzinfo=timezone.utc),
+                end_time=datetime(1985, 10, 26, 1, 21, tzinfo=timezone.utc),
+                digest='foo:bar',
+            ),
+            Scan(
+                data=b'foobaz',
+                job_id='abcd',
+                start_time=datetime(1985, 10, 26, 1, 30, tzinfo=timezone.utc),
+                end_time=datetime(1985, 10, 26, 1, 31, tzinfo=timezone.utc),
+                digest='foo:baz',
+            ),
+        ]

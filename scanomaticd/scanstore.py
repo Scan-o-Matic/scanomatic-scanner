@@ -1,5 +1,8 @@
+from datetime import datetime, timezone
 import json
 from pathlib import Path
+
+from .scanning import Scan
 
 
 class ScanStore:
@@ -38,3 +41,20 @@ class ScanStore:
 
     def __len__(self):
         return len(list(self.path.glob('*.tiff')))
+
+    def __iter__(self):
+        for imgpath in sorted(self.path.glob('*.tiff')):
+            with imgpath.open('rb') as imgf:
+                data = imgf.read()
+            with imgpath.with_suffix('.json').open('r') as jsonf:
+                metadata = json.load(jsonf)
+            yield Scan(
+                data=data,
+                digest=metadata['digest'],
+                start_time=self._get_datetime(metadata['startTime']),
+                end_time=self._get_datetime(metadata['endTime']),
+                job_id=metadata['jobId'],
+            )
+
+    def _get_datetime(self, timestamp):
+        return datetime.fromtimestamp(timestamp, tz=timezone.utc)
