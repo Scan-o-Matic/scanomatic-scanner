@@ -5,6 +5,9 @@ import requests
 from scanomaticd.scanning import ScanningJob
 
 
+DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+
+
 class APIError(Exception):
     pass
 
@@ -37,7 +40,25 @@ class APIGateway:
             end_time=end,
         )
 
+    def post_scan(self, scan):
+        response = requests.post(
+            self.apibase + '/scans',
+            auth=(self.username, self.password),
+            data={
+                'jobId': scan.job_id,
+                'startTime': scan.start_time.strftime(DATETIME_FORMAT),
+                'endTime': scan.end_time.strftime(DATETIME_FORMAT),
+                'digest': scan.digest,
+                'scannerId': self.scannerid,
+            },
+            files={'image': scan.data},
+        )
+        try:
+            response.raise_for_status()
+        except requests.RequestException as error:
+            raise APIError(str(error))
+
 
 def _parse_datetime(s):
-    naive = datetime.strptime(s, '%Y-%m-%dT%H:%M:%SZ')
+    naive = datetime.strptime(s, DATETIME_FORMAT)
     return naive.replace(tzinfo=timezone.utc)
