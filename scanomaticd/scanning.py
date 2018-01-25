@@ -11,18 +11,17 @@ Scan = namedtuple('Scan', [
 
 
 class ScanCommand:
-    def __init__(self, job, scanner, scanstore):
-        self._job = job
+    def __init__(self, scanner, scanstore):
         self._scanner = scanner
         self._scanstore = scanstore
 
-    def execute(self):
+    def __call__(self, job):
         start_time = datetime.now()
         data = self._scanner.scan()
         end_time = datetime.now()
         scan = Scan(
             data=data,
-            job_id=self._job.id,
+            job_id=job.id,
             start_time=start_time,
             end_time=end_time,
             digest='sha256:{}'.format(sha256(data).hexdigest()),

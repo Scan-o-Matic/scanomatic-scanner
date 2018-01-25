@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta
 import logging
+import os
 
+from .apigateway import APIGateway
+from .communication import UpdateScanningJobCommand
 from .daemon import ScanDaemon
 from .scannercontroller import ScanimageScannerController, ScannerError
 from .scanning import ScanCommand, ScanningJob
@@ -24,6 +27,13 @@ if __name__ == '__main__':
         LOG.critical("Can't initialise scanner controller: %s", str(error))
         exit(1)
     store = ScanStore('/var/scanomaticd/scans')
-    command = ScanCommand(job, scanner, store)
-    daemon = ScanDaemon(job, command)
+    apigateway = APIGateway(
+        os.environ['SCANOMATICD_APIROOT'],
+        os.environ['SCANOMATICD_SCANNERID'],
+        os.environ['SCANOMATICD_APIUSERNAME'],
+        os.environ['SCANOMATICD_APIPASSWORD'],
+    )
+    scan_command = ScanCommand(scanner, store)
+    update_command = UpdateScanningJobCommand(apigateway)
+    daemon = ScanDaemon(update_command, scan_command)
     daemon.start()
