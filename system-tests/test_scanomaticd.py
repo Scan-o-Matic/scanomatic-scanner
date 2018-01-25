@@ -31,7 +31,7 @@ def scanning_job(scannerid):
     )
     print(response.json())
     response.raise_for_status()
-    jobid = response.json()['jobId']
+    jobid = response.json()['identifier']
     requests.post(
         APIROOT + '/scan-jobs/{}/start'.format(jobid),
         auth=(USERNAME, PASSWORD),
