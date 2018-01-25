@@ -29,7 +29,6 @@ def scanning_job(scannerid):
         },
         auth=(USERNAME, PASSWORD),
     )
-    print(response.json())
     response.raise_for_status()
     jobid = response.json()['identifier']
     requests.post(
