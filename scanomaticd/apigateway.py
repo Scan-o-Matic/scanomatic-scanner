@@ -38,14 +38,14 @@ class APIGateway:
         )
 
     def update_status(self, message=""):
-        url = "{apibase}/api/scanners/{scannerid}/status".format(
+        url = "{apibase}/scanners/{scannerid}/status".format(
             apibase=self.apibase, scannerid=self.scannerid)
 
         req = requests.put(
             url, json={"message": message}, auth=(self.username, self.password)
         )
 
-        return req.status
+        return req.status_code
 
 
 def _parse_datetime(s):
