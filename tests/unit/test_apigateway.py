@@ -58,9 +58,7 @@ class TestGetScannerJob:
 
     @responses.activate
     def test_return_none_if_no_job(self, apigateway):
-        responses.add(
-            responses.GET, self.URI, body='null',
-        )
+        responses.add(responses.GET, self.URI, body='null')
         job = apigateway.get_scanner_job()
         assert job is None
 
@@ -73,3 +71,13 @@ class TestGetScannerJob:
         )
         with pytest.raises(APIError, match='Internal Server Error'):
             apigateway.get_scanner_job()
+
+
+class TestUpdateScannerStatus:
+    URI = 'http://example.com/api/scanners/{}/status'.format(SCANNERID)
+
+    @responses.activate
+    def test_update_status(self, apigateway):
+        responses.add(responses.PUT, self.URI, body='null')
+        response_code = apigateway.update_status("")
+        assert response_code == 200

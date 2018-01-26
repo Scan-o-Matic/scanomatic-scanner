@@ -38,7 +38,8 @@ def fakeheartbeatcommand():
 @pytest.fixture
 def daemon(fakescancommand, fakeupdatecommand, fakeheartbeatcommand):
     daemon = ScanDaemon(
-        fakeupdatecommand, fakescancommand, scheduler=BackgroundScheduler
+        fakeupdatecommand, fakescancommand, fakeheartbeatcommand,
+        scheduler=BackgroundScheduler
     )
     daemon.start()
     yield daemon

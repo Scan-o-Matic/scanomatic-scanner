@@ -7,9 +7,16 @@ LOG.setLevel(logging.DEBUG)
 
 
 class HeartbeatCommand:
-    def __init__(self, gateway):
-        self._gateway = gateway
+    def __init__(self, apigateway):
+        self._apigateway = apigateway
 
-    def execute(self):
+    def __call__(self):
         LOG.debug("heartbeat")
-        self._gateway.post_status("")
+
+        response_code = self._apigateway.update_status("")
+
+        if response_code != 200:
+            LOG.warning(
+                "Unexpected response %s when posting status update",
+                response_code
+            )

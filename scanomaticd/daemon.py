@@ -28,9 +28,9 @@ class ScanDaemon:
         )
 
         self._scheduler.add_job(
-            heartcommand.execute,
+            heartcommand,
             'interval',
-            seconds=heartinterval.total_seconds(),
+            seconds=self.INTERVAL_UPDATESTATUS,
         )
 
 

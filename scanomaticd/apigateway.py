@@ -37,6 +37,16 @@ class APIGateway:
             end_time=end,
         )
 
+    def update_status(self, message=""):
+        url = "{apibase}/api/scanners/{scannerid}/status".format(
+            apibase=self.apibase, scannerid=self.scannerid)
+
+        req = requests.put(
+            url, json={"message": message}, auth=(self.username, self.password)
+        )
+
+        return req.status
+
 
 def _parse_datetime(s):
     naive = datetime.strptime(s, '%Y-%m-%dT%H:%M:%SZ')
