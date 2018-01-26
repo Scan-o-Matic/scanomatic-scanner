@@ -1,13 +1,14 @@
-import os
 from datetime import datetime, timedelta
 import logging
+import os
 
+from .apigateway import APIGateway
+from .communication import UpdateScanningJobCommand
 from .daemon import ScanDaemon
 from .scannercontroller import ScanimageScannerController, ScannerError
 from .scanning import ScanCommand, ScanningJob
 from .scanstore import ScanStore
 from .heartbeat import HeartbeatCommand, HeartbeatJob
-from .client import Client
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s')
 LOG = logging.getLogger(__name__)
@@ -28,12 +29,15 @@ if __name__ == '__main__':
         LOG.critical("Can't initialise scanner controller: %s", str(error))
         exit(1)
     store = ScanStore('/var/scanomaticd/scans')
-    scancommand = ScanCommand(scanjob, scanner, store)
+    apigateway = APIGateway(
+        os.environ['SCANOMATICD_APIROOT'],
+        os.environ['SCANOMATICD_SCANNERID'],
+        os.environ['SCANOMATICD_APIUSERNAME'],
+        os.environ['SCANOMATICD_APIPASSWORD'],
+    )
+    scan_command = ScanCommand(scanner, store)
+    update_command = UpdateScanningJobCommand(apigateway)
+    heartbeatcommand = HeartbeatCommand(apigateway)
 
-    heartbeat = timedelta(seconds=1)
-    client = Client(
-        "localhost:5000", (os.getenv("SOM_USER"), os.getenv("SOM_PASSWORD")))
-    heartbeatcommand = HeartbeatCommand(client)
-
-    daemon = ScanDaemon(scanjob, scancommand, heartbeat, heartbeatcommand)
+    daemon = ScanDaemon(update_command, scan_command, heartbeat_command)
     daemon.start()

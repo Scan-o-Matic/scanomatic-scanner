@@ -24,7 +24,14 @@ pipeline {
     stage('System tests') {
       agent { label 'scanner' }
       steps {
-        sh 'tox -e sys'
+        withCredentials([[
+          $class: 'UsernamePasswordMultiBinding',
+          credentialsId: 'scanomatic-staging',
+          usernameVariable: 'SCANOMATIC_USERNAME',
+          passwordVariable: 'SCANOMATIC_PASSWORD'
+        ]]) {
+          sh 'tox -e sys'
+        }
       }
     }
   }

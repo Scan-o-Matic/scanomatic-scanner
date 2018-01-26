@@ -33,8 +33,8 @@ def test_scancommand(scanningjob):
     scanstore = MagicMock()
     with freeze_time(now) as faketime:
         scanner = FakeScanner(fakedata, faketime)
-        scancommand = ScanCommand(scanningjob, scanner, scanstore)
-        scancommand.execute()
+        scancommand = ScanCommand(scanner, scanstore)
+        scancommand(scanningjob)
     scanstore.put.assert_called_with(
         Scan(
             data=fakedata,
