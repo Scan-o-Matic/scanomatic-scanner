@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from time import sleep
 from unittest.mock import MagicMock, call
 
@@ -90,6 +90,33 @@ class TestSetScanningJob:
         assert fakescancommand.calls == [
             (0, call(job)),
         ]
+
+    def test_get_next_scheduled_scan_when_no_job(self, daemon):
+        assert daemon.get_next_scheduled_scan() is None
+
+    @pytest.mark.slow
+    def test_get_next_scheduled_scan(self, daemon):
+        now = datetime.now(timezone.utc)
+        delta = timedelta(seconds=1200)
+        job = ScanningJob(
+            id='53412',
+            interval=delta,
+            end_time=now + 2 * delta
+        )
+        daemon.set_scanning_job(job)
+        sleep(1)
+        assert (
+            (daemon.get_next_scheduled_scan() - (now + delta)).total_seconds()
+            < 1
+        )
+
+    @pytest.mark.slow
+    def test_get_next_scheduled_scan_when_job_canceled(self, daemon, job):
+        daemon.set_scanning_job(job)
+        sleep(1)
+        daemon.set_scanning_job(None)
+        sleep(2)
+        assert daemon.get_next_scheduled_scan() is None
 
 
 @pytest.mark.slow
