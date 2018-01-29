@@ -10,10 +10,12 @@ class HeartbeatCommand:
     def __init__(self, apigateway):
         self._apigateway = apigateway
 
-    def __call__(self):
+    def __call__(self, daemon):
         LOG.debug("heartbeat")
 
-        response_code = self._apigateway.update_status("")
+        response_code = self._apigateway.update_status(
+            job=daemon.get_scanning_job()
+        )
 
         if response_code != 200:
             LOG.warning(

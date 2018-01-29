@@ -37,12 +37,12 @@ class APIGateway:
             end_time=end,
         )
 
-    def update_status(self, message=""):
+    def update_status(self, job=None):
         url = "{apibase}/scanners/{scannerid}/status".format(
             apibase=self.apibase, scannerid=self.scannerid)
 
         req = requests.put(
-            url, json={"message": message}, auth=(self.username, self.password)
+            url, json={"job": job}, auth=(self.username, self.password)
         )
 
         return req.status_code
