@@ -1,12 +1,13 @@
 import pytest
 from unittest.mock import MagicMock
+from http import HTTPStatus
 
 from scanomaticd.heartbeat import HeartbeatCommand
 
 
 class TestScannerHeartbeat:
 
-    @pytest.mark.parametrize("status", [200, 201, 400, 404, 500])
+    @pytest.mark.parametrize("status", [HTTPStatus.OK, HTTPStatus.CREATED])
     def test_heartbeat_good(self, status):
         apigateway = MagicMock()
         apigateway.update_status.return_value = status
