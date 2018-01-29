@@ -8,7 +8,7 @@ from .daemon import ScanDaemon
 from .scannercontroller import ScanimageScannerController, ScannerError
 from .scanning import ScanCommand, ScanningJob
 from .scanstore import ScanStore
-from .heartbeat import HeartbeatCommand, HeartbeatJob
+from .heartbeat import HeartbeatCommand
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s')
 LOG = logging.getLogger(__name__)
