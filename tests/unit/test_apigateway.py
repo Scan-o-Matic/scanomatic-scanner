@@ -77,7 +77,7 @@ class TestUpdateScannerStatus:
     URI = 'http://example.com/api/scanners/{}/status'.format(SCANNERID)
 
     @responses.activate
-    def test_update_status(self, apigateway):
+    def test_update_status_registered_scanner(self, apigateway):
         responses.add(responses.PUT, self.URI, body='null')
         response_code = apigateway.update_status("")
         assert response_code == 200
