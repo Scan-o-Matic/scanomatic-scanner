@@ -19,5 +19,5 @@ class HeartbeatCommand:
         except APIError as error:
             LOG.warning(
                 "Unexpected response %s when posting status update",
-                error
+                str(error)
             )

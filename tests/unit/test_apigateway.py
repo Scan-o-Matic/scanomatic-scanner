@@ -9,14 +9,14 @@ from scanomaticd.apigateway import APIGateway, APIError
 from scanomaticd.scanning import ScanningJob
 
 
-SCANNERID = 'sc4nn3r'
+SCANNER_ID = 'sc4nn3r'
 
 
 @pytest.fixture
 def apigateway():
     return APIGateway(
         'http://example.com/api',
-        SCANNERID,
+        SCANNER_ID,
         'myuser',
         'mypassword'
     )
@@ -31,7 +31,7 @@ def assert_authorized(request):
 
 
 class TestGetScannerJob:
-    URI = 'http://example.com/api/scanners/{}/job'.format(SCANNERID)
+    URI = 'http://example.com/api/scanners/{}/job'.format(SCANNER_ID)
 
     @responses.activate
     def test_authorization(self, apigateway):
@@ -74,10 +74,24 @@ class TestGetScannerJob:
 
 
 class TestUpdateScannerStatus:
-    URI = 'http://example.com/api/scanners/{}/status'.format(SCANNERID)
+    URI = 'http://example.com/api/scanners/{}/status'.format(SCANNER_ID)
 
     @responses.activate
-    def test_update_status_registered_scanner(self, apigateway):
-        responses.add(responses.PUT, self.URI, body='null')
+    @pytest.mark.parametrize(
+        "response",
+        [HTTPStatus.OK, HTTPStatus.CREATED]
+    )
+    def test_update_status_good_response(self, apigateway, response):
+        responses.add(responses.PUT, self.URI, body='null', status=response)
         response_code = apigateway.update_status("")
-        assert response_code == 200
+        assert response_code == response
+
+    @responses.activate
+    @pytest.mark.parametrize(
+        "response",
+        [HTTPStatus.GATEWAY_TIMEOUT, HTTPStatus.BAD_REQUEST]
+    )
+    def test_update_status_server_error(self, apigateway, response):
+        responses.add(responses.PUT, self.URI, body='null', status=response)
+        with pytest.raises(APIError):
+            apigateway.update_status("")
