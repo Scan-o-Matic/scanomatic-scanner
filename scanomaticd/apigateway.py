@@ -41,11 +41,15 @@ class APIGateway:
         url = "{apibase}/scanners/{scannerid}/status".format(
             apibase=self.apibase, scannerid=self.scannerid)
 
-        req = requests.put(
+        response = requests.put(
             url, json={"job": job}, auth=(self.username, self.password)
         )
+        try:
+            response.raise_for_status()
+        except requests.RequestException as error:
+            raise APIError(str(error))
 
-        return req.status_code
+        return response.status_code
 
 
 def _parse_datetime(s):
