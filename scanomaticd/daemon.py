@@ -51,3 +51,8 @@ class ScanDaemon:
 
     def stop(self):
         self._scheduler.shutdown()
+
+    def get_next_scheduled_scan(self):
+        job = self._scheduler.get_job(self.JOBID_SCANNING)
+        if job:
+            return job.next_run_time
