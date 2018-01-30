@@ -21,19 +21,25 @@ class FakeCommand:
 
 
 @pytest.fixture
-def fakescancommand():
+def fake_scan_command():
     return FakeCommand()
 
 
 @pytest.fixture
-def fakeupdatecommand():
+def fake_update_command():
     return FakeCommand()
 
 
 @pytest.fixture
-def daemon(fakescancommand, fakeupdatecommand):
+def fake_heartbeat_command():
+    return FakeCommand()
+
+
+@pytest.fixture
+def daemon(fake_scan_command, fake_update_command, fake_heartbeat_command):
     daemon = ScanDaemon(
-        fakeupdatecommand, fakescancommand, scheduler=BackgroundScheduler
+        fake_update_command, fake_scan_command, fake_heartbeat_command,
+        scheduler=BackgroundScheduler
     )
     daemon.start()
     yield daemon
@@ -55,17 +61,17 @@ class TestSetScanningJob:
         assert daemon.get_scanning_job() == job
 
     @pytest.mark.slow
-    def test_complete_scanning_job(self, daemon, job, fakescancommand):
+    def test_complete_scanning_job(self, daemon, job, fake_scan_command):
         daemon.set_scanning_job(job)
         sleep(7)
-        assert fakescancommand.calls == [
+        assert fake_scan_command.calls == [
             (0, call(job)),
             (2, call(job)),
             (4, call(job)),
         ]
 
     @pytest.mark.slow
-    def test_replace_existing_job(self, daemon, job, fakescancommand):
+    def test_replace_existing_job(self, daemon, job, fake_scan_command):
         daemon.set_scanning_job(job)
         sleep(1)
         job2 = ScanningJob(
@@ -75,19 +81,19 @@ class TestSetScanningJob:
         )
         daemon.set_scanning_job(job2)
         sleep(5)
-        assert fakescancommand.calls == [
+        assert fake_scan_command.calls == [
             (0, call(job)),
             (1, call(job2)),
             (5, call(job2)),
         ]
 
     @pytest.mark.slow
-    def test_cancel_existing_job(self, daemon, job, fakescancommand):
+    def test_cancel_existing_job(self, daemon, job, fake_scan_command):
         daemon.set_scanning_job(job)
         sleep(1)
         daemon.set_scanning_job(None)
         sleep(2)
-        assert fakescancommand.calls == [
+        assert fake_scan_command.calls == [
             (0, call(job)),
         ]
 
@@ -121,9 +127,9 @@ class TestSetScanningJob:
 
 @pytest.mark.slow
 class TestUpdateCommand:
-    def test_run_every_minutes(self, daemon, fakeupdatecommand):
+    def test_run_every_minutes(self, daemon, fake_update_command):
         sleep(120)
-        assert fakeupdatecommand.calls == [
+        assert fake_update_command.calls == [
             (0, call(daemon)),
             (60, call(daemon)),
             (120, call(daemon)),

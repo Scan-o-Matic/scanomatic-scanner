@@ -8,6 +8,7 @@ from .daemon import ScanDaemon
 from .scannercontroller import ScanimageScannerController, ScannerError
 from .scanning import ScanCommand, ScanningJob
 from .scanstore import ScanStore
+from .heartbeat import HeartbeatCommand
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s')
 LOG = logging.getLogger(__name__)
@@ -16,7 +17,8 @@ LOG.setLevel(logging.DEBUG)
 
 if __name__ == '__main__':
     LOG.info('Starting scanomaticd')
-    job = ScanningJob(
+
+    scanjob = ScanningJob(
         id='fake',
         interval=timedelta(minutes=5),
         end_time=datetime.now() + timedelta(minutes=15),
@@ -35,5 +37,7 @@ if __name__ == '__main__':
     )
     scan_command = ScanCommand(scanner, store)
     update_command = UpdateScanningJobCommand(apigateway)
-    daemon = ScanDaemon(update_command, scan_command)
+    heartbeat_command = HeartbeatCommand(apigateway)
+
+    daemon = ScanDaemon(update_command, scan_command, heartbeat_command)
     daemon.start()
