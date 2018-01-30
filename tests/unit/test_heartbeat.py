@@ -18,7 +18,7 @@ class TestScannerHeartbeat:
 
     @pytest.fixture
     def apigateway(self):
-        apigateway = MagicMock()
+        return MagicMock()
 
     def test_heartbeat_good_response(self, daemon, apigateway):
         heartbeat = HeartbeatCommand(apigateway)
