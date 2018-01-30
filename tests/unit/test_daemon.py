@@ -36,9 +36,22 @@ def fake_heartbeat_command():
 
 
 @pytest.fixture
-def daemon(fake_scan_command, fake_update_command, fake_heartbeat_command):
+def fake_upload_command():
+    return FakeCommand()
+
+
+@pytest.fixture
+def daemon(
+    fake_scan_command,
+    fake_update_command,
+    fake_heartbeat_command,
+    fake_upload_command,
+):
     daemon = ScanDaemon(
-        fake_update_command, fake_scan_command, fake_heartbeat_command,
+        fake_update_command,
+        fake_scan_command,
+        fake_heartbeat_command,
+        fake_upload_command,
         scheduler=BackgroundScheduler
     )
     daemon.start()
@@ -133,4 +146,15 @@ class TestUpdateCommand:
             (0, call(daemon)),
             (60, call(daemon)),
             (120, call(daemon)),
+        ]
+
+
+@pytest.mark.slow
+class TestUploadCommand:
+    def test_run_every_minutes(self, daemon, fake_upload_command):
+        sleep(120)
+        assert fake_upload_command.calls == [
+            (0, call()),
+            (60, call()),
+            (120, call()),
         ]

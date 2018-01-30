@@ -8,12 +8,14 @@ class ScanDaemon:
     JOBID_UPDATESCANNINGJOB = 'update-scanning-job'
     INTERVAL_UPDATESCANNINGJOB = 60
     INTERVAL_UPDATESTATUS = 60
+    INTERVAL_UPLOAD = 60
 
     def __init__(
             self,
             update_command,
             scan_command,
             heartbeat_command,
+            upload_command,
             scheduler=BlockingScheduler
     ):
         self._scheduler = scheduler()
@@ -35,6 +37,14 @@ class ScanDaemon:
             heartbeat_command,
             'interval',
             seconds=self.INTERVAL_UPDATESTATUS,
+        )
+        self._scheduler.add_job(
+            upload_command,
+            trigger='interval',
+            coalesce=True,
+            max_instances=1,
+            next_run_time=datetime.now(),
+            seconds=self.INTERVAL_UPLOAD,
         )
 
     def set_scanning_job(self, job):
