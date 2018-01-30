@@ -19,8 +19,8 @@ def scannerid():
     return '9a8486a6f9cb11e7ac660050b68338ac'
 
 
-@pytest.fixture(autouse=True)
-def scanning_job(scannerid):
+@pytest.fixture
+def scanjobid(scannerid):
     response = requests.post(
         APIROOT + '/scan-jobs',
         json={
@@ -35,9 +35,19 @@ def scanning_job(scannerid):
         APIROOT + '/scan-jobs/{}/start'.format(jobid),
         auth=(USERNAME, PASSWORD),
     ).raise_for_status()
+    return jobid
 
 
-@pytest.fixture(autouse=True)
+def get_scan_times(jobid):
+    response = requests.get(APIROOT + '/scans', auth=(USERNAME, PASSWORD))
+    response.raise_for_status()
+    return [
+        datetime.strptime(obj['startTime'], '%Y-%m-%dT%H:%M:%SZ')
+        for obj in response if obj['scanJobId'] == jobid
+    ]
+
+
+@pytest.fixture
 def scanomaticd(tmpdir, scannerid):
     dockerclient = docker.from_env()
     container = dockerclient.containers.run(
@@ -51,7 +61,6 @@ def scanomaticd(tmpdir, scannerid):
         },
         privileged=True,
         volumes={
-            tmpdir: {'bind': '/var/scanomaticd', 'mode': 'rw'},
             '/dev/bus/usb': {'bind': '/dev/bus/usb', 'mode': 'rw'},
         },
     )
@@ -61,9 +70,9 @@ def scanomaticd(tmpdir, scannerid):
     container.remove()
 
 
-def test(tmpdir, scanomaticd):
+def test(tmpdir, scanomaticd, scanjobid):
     nbscans = 3
-    interval = timedelta(minutes=5)
+    interval = timedelta(minutes=1)
     begin = datetime.now()
     scantimes = []
     while datetime.now() - begin < (nbscans + 1) * interval:
@@ -71,6 +80,7 @@ def test(tmpdir, scanomaticd):
             scantimes.append(datetime.now())
         assert scanomaticd.status in {'created', 'running'}
         time.sleep(1)
+    scantimes = get_scan_times(scanjobid)
     assert len(scantimes) == nbscans
     assert scantimes[0] - begin < SCANDURATION
     assert interval < scantimes[1] - begin < interval + SCANDURATION
