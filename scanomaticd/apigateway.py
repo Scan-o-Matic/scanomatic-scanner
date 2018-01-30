@@ -57,7 +57,7 @@ class APIGateway:
             self.apibase + '/scans',
             auth=(self.username, self.password),
             data={
-                'jobId': scan.job_id,
+                'scanJobId': scan.job_id,
                 'startTime': scan.start_time.strftime(DATETIME_FORMAT),
                 'endTime': scan.end_time.strftime(DATETIME_FORMAT),
                 'digest': scan.digest,

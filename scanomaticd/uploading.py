@@ -14,5 +14,5 @@ class UploadCommand:
 
     def __call__(self):
         for scan in self._scanstore:
-            self._apigateway.upload_scan(scan)
+            self._apigateway.post_scan(scan)
             self._scanstore.delete(scan)

@@ -141,7 +141,7 @@ class TestPostScan:
         apigateway.post_scan(scan)
         data, files = parse_request(responses.calls[0].request)
         assert data == {
-            'jobId': 'abcd',
+            'scanJobId': 'abcd',
             'startTime': '1985-10-26T01:20:00Z',
             'endTime': '1985-10-26T01:21:00Z',
             'digest': 'foo:bar',

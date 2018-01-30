@@ -36,7 +36,7 @@ class TestUploadCommand:
         scanstore = MagicMock()
         command = UploadCommand(apigateway, scanstore)
         command()
-        apigateway.updload_scan.assert_not_called()
+        apigateway.post_scan.assert_not_called()
 
     def test_upload_scans(self, scans):
         apigateway = MagicMock()
@@ -44,7 +44,7 @@ class TestUploadCommand:
         scanstore.__iter__.return_value = scans
         command = UploadCommand(apigateway, scanstore)
         command()
-        apigateway.upload_scan.assert_has_calls([call(scan) for scan in scans])
+        apigateway.post_scan.assert_has_calls([call(scan) for scan in scans])
 
     def test_delete_the_scans_on_success(self, scans):
         apigateway = MagicMock()
@@ -56,7 +56,7 @@ class TestUploadCommand:
 
     def test_doesnt_delete_the_scan_on_error(self, scans):
         apigateway = MagicMock()
-        apigateway.upload_scan.side_effect = APIError
+        apigateway.post_scan.side_effect = APIError
         scanstore = MagicMock()
         scanstore.__iter__.return_value = scans
         command = UploadCommand(apigateway, scanstore)
