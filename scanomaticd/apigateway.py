@@ -61,7 +61,6 @@ class APIGateway:
                 'startTime': scan.start_time.strftime(DATETIME_FORMAT),
                 'endTime': scan.end_time.strftime(DATETIME_FORMAT),
                 'digest': scan.digest,
-                'scannerId': self.scannerid,
             },
             files={'image': scan.data},
         )
