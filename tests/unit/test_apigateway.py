@@ -2,6 +2,7 @@ from base64 import b64encode
 from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 
+import json
 import pytest
 import responses
 
@@ -81,7 +82,9 @@ class TestUpdateScannerStatus:
         "response",
         [HTTPStatus.OK, HTTPStatus.CREATED]
     )
-    def test_update_status_good_response_not_raises(self, apigateway, response):
+    def test_update_status_good_response_not_raises(
+        self, apigateway, response
+    ):
         responses.add(responses.PUT, self.URI, body='null', status=response)
         apigateway.update_status("")
 
@@ -94,3 +97,23 @@ class TestUpdateScannerStatus:
         responses.add(responses.PUT, self.URI, body='null', status=response)
         with pytest.raises(APIError):
             apigateway.update_status("")
+
+    @responses.activate
+    def test_update_status_posts_job(self, apigateway):
+        responses.add(responses.PUT, self.URI, body='null')
+        job = {'this': 'is a job'}
+        apigateway.update_status(job=job)
+        assert responses.calls[0].request.body == json.dumps({
+            'job': job,
+            'nextScheduledScan': None,
+        }).encode()
+
+    @responses.activate
+    def test_update_status_posts_next_scheduled_scan(self, apigateway):
+        responses.add(responses.PUT, self.URI, body='null')
+        dt = datetime(1980, 3, 23, 13, 55, tzinfo=timezone.utc)
+        apigateway.update_status(next_scheduled_scan=dt)
+        assert responses.calls[0].request.body == json.dumps({
+            'job': None,
+            'nextScheduledScan': '1980-03-23T13:55:00Z',
+        }).encode()

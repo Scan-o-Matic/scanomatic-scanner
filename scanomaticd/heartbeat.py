@@ -14,7 +14,8 @@ class HeartbeatCommand:
     def __call__(self, daemon):
         try:
             self._apigateway.update_status(
-                job=daemon.get_scanning_job()
+                job=daemon.get_scanning_job(),
+                next_scheduled_scan=daemon.get_next_scheduled_scan(),
             )
         except APIError as error:
             LOG.warning(
