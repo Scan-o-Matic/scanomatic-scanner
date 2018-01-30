@@ -10,8 +10,10 @@ from .scanning import ScanCommand, ScanningJob
 from .scanstore import ScanStore
 from .heartbeat import HeartbeatCommand
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s')
-LOG = logging.getLogger(__name__)
+logging.basicConfig(
+    format='%(asctime)s %(name)s %(levelname)s %(message)s',
+)
+LOG = logging.getLogger('scanomaticd')
 LOG.setLevel(logging.DEBUG)
 
 
