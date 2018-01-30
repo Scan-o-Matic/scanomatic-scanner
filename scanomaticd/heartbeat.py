@@ -12,9 +12,10 @@ class HeartbeatCommand:
         self._apigateway = apigateway
 
     def __call__(self, daemon):
+        currentjob = daemon.get_scanning_job()
         try:
             self._apigateway.update_status(
-                job=daemon.get_scanning_job(),
+                job=currentjob.id if currentjob else None,
                 next_scheduled_scan=daemon.get_next_scheduled_scan(),
             )
         except APIError as error:
