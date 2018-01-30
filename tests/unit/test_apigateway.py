@@ -10,14 +10,14 @@ from scanomaticd.apigateway import APIGateway, APIError
 from scanomaticd.scanning import ScanningJob
 
 
-SCANNERID = 'sc4nn3r'
+SCANNER_ID = 'sc4nn3r'
 
 
 @pytest.fixture
 def apigateway():
     return APIGateway(
         'http://example.com/api',
-        SCANNERID,
+        SCANNER_ID,
         'myuser',
         'mypassword'
     )
@@ -32,7 +32,7 @@ def assert_authorized(request):
 
 
 class TestGetScannerJob:
-    URI = 'http://example.com/api/scanners/{}/job'.format(SCANNERID)
+    URI = 'http://example.com/api/scanners/{}/job'.format(SCANNER_ID)
 
     @responses.activate
     def test_authorization(self, apigateway):
@@ -59,9 +59,7 @@ class TestGetScannerJob:
 
     @responses.activate
     def test_return_none_if_no_job(self, apigateway):
-        responses.add(
-            responses.GET, self.URI, body='null',
-        )
+        responses.add(responses.GET, self.URI, body='null')
         job = apigateway.get_scanner_job()
         assert job is None
 
@@ -74,6 +72,29 @@ class TestGetScannerJob:
         )
         with pytest.raises(APIError, match='Internal Server Error'):
             apigateway.get_scanner_job()
+
+
+class TestUpdateScannerStatus:
+    URI = 'http://example.com/api/scanners/{}/status'.format(SCANNER_ID)
+
+    @responses.activate
+    @pytest.mark.parametrize(
+        "response",
+        [HTTPStatus.OK, HTTPStatus.CREATED]
+    )
+    def test_update_status_good_response_not_raises(self, apigateway, response):
+        responses.add(responses.PUT, self.URI, body='null', status=response)
+        apigateway.update_status("")
+
+    @responses.activate
+    @pytest.mark.parametrize(
+        "response",
+        [HTTPStatus.GATEWAY_TIMEOUT, HTTPStatus.BAD_REQUEST]
+    )
+    def test_update_status_bad_response_raises(self, apigateway, response):
+        responses.add(responses.PUT, self.URI, body='null', status=response)
+        with pytest.raises(APIError):
+            apigateway.update_status("")
 
 
 class TestPostScan:

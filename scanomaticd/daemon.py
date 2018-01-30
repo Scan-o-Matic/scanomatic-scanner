@@ -7,15 +7,21 @@ class ScanDaemon:
     JOBID_SCANNING = 'scanning'
     JOBID_UPDATESCANNINGJOB = 'update-scanning-job'
     INTERVAL_UPDATESCANNINGJOB = 60
+    INTERVAL_UPDATESTATUS = 60
 
     def __init__(
-        self, updatecommand, scancommand, scheduler=BlockingScheduler
+            self,
+            update_command,
+            scan_command,
+            heartbeat_command,
+            scheduler=BlockingScheduler
     ):
         self._scheduler = scheduler()
-        self._scancommand = scancommand
+
+        self._scan_command = scan_command
         self._job = None
         self._scheduler.add_job(
-            updatecommand,
+            update_command,
             args=(self,),
             trigger='interval',
             coalesce=True,
@@ -25,12 +31,18 @@ class ScanDaemon:
             seconds=self.INTERVAL_UPDATESCANNINGJOB,
         )
 
+        self._scheduler.add_job(
+            heartbeat_command,
+            'interval',
+            seconds=self.INTERVAL_UPDATESTATUS,
+        )
+
     def set_scanning_job(self, job):
         if job is None:
             self._scheduler.remove_job(self.JOBID_SCANNING)
         else:
             self._scheduler.add_job(
-                self._scancommand,
+                self._scan_command,
                 args=(job,),
                 trigger='interval',
                 coalesce=True,
@@ -51,3 +63,8 @@ class ScanDaemon:
 
     def stop(self):
         self._scheduler.shutdown()
+
+    def get_next_scheduled_scan(self):
+        job = self._scheduler.get_job(self.JOBID_SCANNING)
+        if job:
+            return job.next_run_time

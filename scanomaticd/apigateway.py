@@ -40,6 +40,18 @@ class APIGateway:
             end_time=end,
         )
 
+    def update_status(self, job=None):
+        url = "{apibase}/scanners/{scannerid}/status".format(
+            apibase=self.apibase, scannerid=self.scannerid)
+
+        response = requests.put(
+            url, json={"job": job}, auth=(self.username, self.password)
+        )
+        try:
+            response.raise_for_status()
+        except requests.RequestException as error:
+            raise APIError(str(error))
+
     def post_scan(self, scan):
         response = requests.post(
             self.apibase + '/scans',
