@@ -103,17 +103,17 @@ class TestUpdateScannerStatus:
         responses.add(responses.PUT, self.URI, body='null')
         job = {'this': 'is a job'}
         apigateway.update_status(job=job)
-        assert responses.calls[0].request.body == json.dumps({
+        assert json.loads(responses.calls[0].request.body.decode()) == {
             'job': job,
             'nextScheduledScan': None,
-        }).encode()
+        }
 
     @responses.activate
     def test_update_status_posts_next_scheduled_scan(self, apigateway):
         responses.add(responses.PUT, self.URI, body='null')
         dt = datetime(1980, 3, 23, 13, 55, tzinfo=timezone.utc)
         apigateway.update_status(next_scheduled_scan=dt)
-        assert responses.calls[0].request.body == json.dumps({
+        assert json.loads(responses.calls[0].request.body.decode()) == {
             'job': None,
             'nextScheduledScan': '1980-03-23T13:55:00Z',
-        }).encode()
+        }

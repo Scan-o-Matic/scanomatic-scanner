@@ -23,13 +23,14 @@ class TestScannerHeartbeat:
     def test_heartbeat_good_response(self, daemon, apigateway):
         heartbeat = HeartbeatCommand(apigateway)
         heartbeat(daemon)
-        assert apigateway.update_status.called_once()
+        apigateway.update_status.assert_called_once_with(
+            job=None, next_scheduled_scan=None,
+        )
 
-    def test_heartbeat_bad_response(self, daemon, apigateway):
+    def test_heartbeat_bad_response_doesnt_raise(self, daemon, apigateway):
         apigateway.update_status.side_effect = APIError("")
         heartbeat = HeartbeatCommand(apigateway)
         heartbeat(daemon)
-        assert apigateway.update_status.called_once()
 
     def test_heartbeat_with_scheduled_scan(self, daemon, apigateway):
         now = datetime.now(tz=timezone.utc)
@@ -37,15 +38,14 @@ class TestScannerHeartbeat:
         daemon.get_next_scheduled_scan.return_value = scheduled
         heartbeat = HeartbeatCommand(apigateway)
         heartbeat(daemon)
-        assert apigateway.update_status.called_with(
-            job=None, next_scheduled_scan=scheduled
+        apigateway.update_status.assert_called_once_with(
+            job=None, next_scheduled_scan=scheduled,
         )
 
-    def test_heartbeat_with_job(self, daemon, apigateway):
-        job = {'test': 'me'}
-        daemon.get_scanning_job.return_value = job
+    def test_heartbeat_with_job(self, daemon, apigateway, scanningjob):
+        daemon.get_scanning_job.return_value = scanningjob
         heartbeat = HeartbeatCommand(apigateway)
         heartbeat(daemon)
-        assert apigateway.update_status.called_with(
-            job=job, next_scheduled_scan=None
+        apigateway.update_status.assert_called_once_with(
+            job=scanningjob.id, next_scheduled_scan=None,
         )
