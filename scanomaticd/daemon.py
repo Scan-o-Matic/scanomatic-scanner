@@ -32,10 +32,10 @@ class ScanDaemon:
             next_run_time=datetime.now(),
             seconds=self.INTERVAL_UPDATESCANNINGJOB,
         )
-
         self._scheduler.add_job(
             heartbeat_command,
-            'interval',
+            args=(self,),
+            trigger='interval',
             seconds=self.INTERVAL_UPDATESTATUS,
         )
         self._scheduler.add_job(
