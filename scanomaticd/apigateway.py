@@ -49,8 +49,6 @@ class APIGateway:
         except requests.RequestException as error:
             raise APIError(str(error))
 
-        return response.status_code
-
 
 def _parse_datetime(s):
     naive = datetime.strptime(s, '%Y-%m-%dT%H:%M:%SZ')

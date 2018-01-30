@@ -81,17 +81,16 @@ class TestUpdateScannerStatus:
         "response",
         [HTTPStatus.OK, HTTPStatus.CREATED]
     )
-    def test_update_status_good_response(self, apigateway, response):
+    def test_update_status_good_response_not_raises(self, apigateway, response):
         responses.add(responses.PUT, self.URI, body='null', status=response)
-        response_code = apigateway.update_status("")
-        assert response_code == response
+        apigateway.update_status("")
 
     @responses.activate
     @pytest.mark.parametrize(
         "response",
         [HTTPStatus.GATEWAY_TIMEOUT, HTTPStatus.BAD_REQUEST]
     )
-    def test_update_status_server_error(self, apigateway, response):
+    def test_update_status_bad_response_raises(self, apigateway, response):
         responses.add(responses.PUT, self.URI, body='null', status=response)
         with pytest.raises(APIError):
             apigateway.update_status("")

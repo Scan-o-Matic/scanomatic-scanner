@@ -7,7 +7,7 @@ from scanomaticd.heartbeat import HeartbeatCommand
 
 class TestScannerHeartbeat:
 
-    def test_heartbeat_good(self, status):
+    def test_heartbeat_good(self):
         apigateway = MagicMock()
         daemon = MagicMock()
         daemon.get_scanning_job.return_value = None
