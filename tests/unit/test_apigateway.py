@@ -128,3 +128,14 @@ class TestUpdateScannerStatus:
                 responses.calls[0].request.body.decode()
             )['imagesToSend'] == images_to_send
         )
+
+    @responses.activate
+    def test_update_status_posts_uptime(self, apigateway):
+        responses.add(responses.PUT, self.URI, body='null')
+        uptime = 42
+        apigateway.update_status(uptime=uptime)
+        assert (
+            json.loads(
+                responses.calls[0].request.body.decode()
+            )['uptime'] == uptime
+        )

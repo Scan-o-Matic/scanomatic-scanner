@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 
@@ -17,7 +16,7 @@ class ScanDaemon:
             scheduler=BlockingScheduler
     ):
         self._scheduler = scheduler()
-
+        self._start_time = datetime.now()
         self._scan_command = scan_command
         self._job = None
         self._scheduler.add_job(
@@ -68,3 +67,6 @@ class ScanDaemon:
         job = self._scheduler.get_job(self.JOBID_SCANNING)
         if job:
             return job.next_run_time
+
+    def get_uptime(self):
+        return datetime.now() - self._start_time

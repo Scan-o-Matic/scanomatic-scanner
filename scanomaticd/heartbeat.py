@@ -19,6 +19,7 @@ class HeartbeatCommand:
                 job=currentjob.id if currentjob else None,
                 next_scheduled_scan=daemon.get_next_scheduled_scan(),
                 images_to_send=len(self._store),
+                uptime=daemon.get_uptime().total_seconds(),
             )
         except APIError as error:
             LOG.warning(

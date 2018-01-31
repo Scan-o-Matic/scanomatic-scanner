@@ -26,9 +26,13 @@ class TestScannerHeartbeat:
 
     def test_heartbeat_good_response(self, daemon, apigateway, store):
         heartbeat = HeartbeatCommand(apigateway, store)
+        daemon.get_uptime.return_value = timedelta(seconds=55)
         heartbeat(daemon)
         apigateway.update_status.assert_called_once_with(
-            job=None, next_scheduled_scan=None, images_to_send=2,
+            job=None,
+            next_scheduled_scan=None,
+            images_to_send=2,
+            uptime=55,
         )
 
     def test_heartbeat_bad_response_doesnt_raise(
@@ -42,27 +46,39 @@ class TestScannerHeartbeat:
         now = datetime.now(tz=timezone.utc)
         scheduled = now + timedelta(minutes=20)
         daemon.get_next_scheduled_scan.return_value = scheduled
+        daemon.get_uptime.return_value = timedelta(seconds=55)
         heartbeat = HeartbeatCommand(apigateway, store)
         heartbeat(daemon)
         apigateway.update_status.assert_called_once_with(
-            job=None, next_scheduled_scan=scheduled, images_to_send=2,
+            job=None,
+            next_scheduled_scan=scheduled,
+            images_to_send=2,
+            uptime=55,
         )
 
     def test_heartbeat_with_job(self, daemon, apigateway, scanningjob, store):
         daemon.get_scanning_job.return_value = scanningjob
+        daemon.get_uptime.return_value = timedelta(seconds=55)
         heartbeat = HeartbeatCommand(apigateway, store)
         heartbeat(daemon)
         apigateway.update_status.assert_called_once_with(
-            job=scanningjob.id, next_scheduled_scan=None, images_to_send=2,
+            job=scanningjob.id,
+            next_scheduled_scan=None,
+            images_to_send=2,
+            uptime=55,
         )
 
     def test_hearbeat_with_no_images_to_send(
         self, daemon, apigateway, scanningjob, store
     ):
         daemon.get_scanning_job.return_value = scanningjob
+        daemon.get_uptime.return_value = timedelta(seconds=55)
         heartbeat = HeartbeatCommand(apigateway, store)
         store.clear()
         heartbeat(daemon)
         apigateway.update_status.assert_called_once_with(
-            job=scanningjob.id, next_scheduled_scan=None, images_to_send=0,
+            job=scanningjob.id,
+            next_scheduled_scan=None,
+            images_to_send=0,
+            uptime=55,
         )

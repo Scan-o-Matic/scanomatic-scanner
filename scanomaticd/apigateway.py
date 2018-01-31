@@ -40,7 +40,8 @@ class APIGateway:
         )
 
     def update_status(
-        self, job=None, next_scheduled_scan=None, images_to_send=None
+        self, job=None, next_scheduled_scan=None, images_to_send=None,
+        uptime=None,
     ):
         url = "{apibase}/scanners/{scannerid}/status".format(
             apibase=self.apibase, scannerid=self.scannerid)
@@ -54,6 +55,7 @@ class APIGateway:
                 "job": job,
                 "nextScheduledScan": next_scheduled_scan,
                 "imagesToSend": images_to_send,
+                "uptime": uptime,
             },
             auth=(self.username, self.password),
         )

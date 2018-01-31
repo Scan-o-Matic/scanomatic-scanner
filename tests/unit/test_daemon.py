@@ -134,3 +134,12 @@ class TestUpdateCommand:
             (60, call(daemon)),
             (120, call(daemon)),
         ]
+
+
+@pytest.mark.slow
+class TestUptime:
+    def test_get_uptime_returns_expected_uptime(self, daemon):
+        sleep(10)
+        assert (
+            daemon.get_uptime().total_seconds() == pytest.approx(10, abs=0.1)
+        )
