@@ -144,7 +144,7 @@ class TestSetScanningJob:
 @pytest.mark.slow
 class TestUpdateCommand:
     def test_run_every_minutes(self, daemon, fake_update_command):
-        sleep(120)
+        sleep(128)
         assert fake_update_command.calls == [
             (60, call(daemon)),
             (120, call(daemon)),
@@ -154,7 +154,7 @@ class TestUpdateCommand:
 @pytest.mark.slow
 class TestUploadCommand:
     def test_run_every_minutes(self, daemon, fake_upload_command):
-        sleep(120)
+        sleep(128)
         assert fake_upload_command.calls == [
             (0, call()),
             (60, call()),
@@ -165,7 +165,7 @@ class TestUploadCommand:
 @pytest.mark.slow
 class TestHeartbeatCommand:
     def test_run_every_minutes(self, daemon, fake_heartbeat_command):
-        sleep(120)
+        sleep(128)
         assert fake_heartbeat_command.calls == [
             (0, call(daemon)),
             (60, call(daemon)),
