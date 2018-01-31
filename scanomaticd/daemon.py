@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.jobstores.base import JobLookupError
 
 
 class ScanDaemon:
@@ -49,7 +50,10 @@ class ScanDaemon:
 
     def set_scanning_job(self, job):
         if job is None:
-            self._scheduler.remove_job(self.JOBID_SCANNING)
+            try:
+                self._scheduler.remove_job(self.JOBID_SCANNING)
+            except JobLookupError:
+                pass
         else:
             self._scheduler.add_job(
                 self._scan_command,

@@ -110,6 +110,9 @@ class TestSetScanningJob:
             (0, call(job)),
         ]
 
+    def test_cancel_non_existing_job(self, daemon):
+        daemon.set_scanning_job(None)
+
     def test_get_next_scheduled_scan_when_no_job(self, daemon):
         assert daemon.get_next_scheduled_scan() is None
 
