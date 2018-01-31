@@ -99,6 +99,36 @@ class TestUpdateScannerStatus:
         with pytest.raises(APIError):
             apigateway.update_status("")
 
+    @responses.activate
+    def test_update_status_posts_job(self, apigateway):
+        responses.add(responses.PUT, self.URI, body='null')
+        job = {'this': 'is a job'}
+        apigateway.update_status(job=job)
+        assert (
+            json.loads(responses.calls[0].request.body.decode())['job'] == job
+        )
+
+    @responses.activate
+    def test_update_status_posts_next_scheduled_scan(self, apigateway):
+        responses.add(responses.PUT, self.URI, body='null')
+        dt = datetime(1980, 3, 23, 13, 55, tzinfo=timezone.utc)
+        apigateway.update_status(next_scheduled_scan=dt)
+        assert (
+            json.loads(
+                responses.calls[0].request.body.decode()
+            )['nextScheduledScan'] == '1980-03-23T13:55:00Z'
+        )
+
+    @responses.activate
+    def test_update_status_posts_images_to_send(self, apigateway):
+        responses.add(responses.PUT, self.URI, body='null')
+        images_to_send = 42
+        apigateway.update_status(images_to_send=images_to_send)
+        assert (
+            json.loads(
+                responses.calls[0].request.body.decode()
+            )['imagesToSend'] == images_to_send
+        )
 
 class TestPostScan:
     URI = 'http://example.com/api/scans'

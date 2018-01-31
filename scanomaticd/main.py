@@ -40,7 +40,7 @@ if __name__ == '__main__':
     )
     scan_command = ScanCommand(scanner, store)
     update_command = UpdateScanningJobCommand(apigateway)
-    heartbeat_command = HeartbeatCommand(apigateway)
+    heartbeat_command = HeartbeatCommand(apigateway, store)
     upload_command = UploadCommand(apigateway, store)
     daemon = ScanDaemon(
         update_command, scan_command, heartbeat_command, upload_command,

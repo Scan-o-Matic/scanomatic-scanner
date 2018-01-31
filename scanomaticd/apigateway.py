@@ -42,7 +42,9 @@ class APIGateway:
             end_time=end,
         )
 
-    def update_status(self, job=None, next_scheduled_scan=None):
+    def update_status(
+        self, job=None, next_scheduled_scan=None, images_to_send=None
+    ):
         url = "{apibase}/scanners/{scannerid}/status".format(
             apibase=self.apibase, scannerid=self.scannerid)
 
@@ -53,7 +55,9 @@ class APIGateway:
             url,
             json={
                 "job": job,
-                "nextScheduledScan": next_scheduled_scan},
+                "nextScheduledScan": next_scheduled_scan,
+                "imagesToSend": images_to_send,
+            },
             auth=(self.username, self.password),
         )
         try:

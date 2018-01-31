@@ -30,8 +30,10 @@ class ScanDaemon:
             coalesce=True,
             id=self.JOBID_UPDATESCANNINGJOB,
             max_instances=1,
+            next_run_time=datetime.now(),
             seconds=self.INTERVAL_UPDATESCANNINGJOB,
         )
+
         self._scheduler.add_job(
             heartbeat_command,
             args=(self,),
