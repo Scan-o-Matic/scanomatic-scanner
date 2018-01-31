@@ -13,6 +13,7 @@ class UploadCommand:
         self._scanstore = scanstore
 
     def __call__(self):
+        LOG.info('%d scans to upload', len(self._scanstore))
         for scan in self._scanstore:
             self._apigateway.post_scan(scan)
             self._scanstore.delete(scan)

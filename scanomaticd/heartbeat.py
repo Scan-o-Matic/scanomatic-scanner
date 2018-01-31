@@ -12,6 +12,7 @@ class HeartbeatCommand:
         self._apigateway = apigateway
 
     def __call__(self, daemon):
+        LOG.info('Reporting scanner status')
         currentjob = daemon.get_scanning_job()
         try:
             self._apigateway.update_status(
