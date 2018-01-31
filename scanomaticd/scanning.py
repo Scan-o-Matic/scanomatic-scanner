@@ -1,6 +1,9 @@
 from collections import namedtuple
 from datetime import datetime
 from hashlib import sha256
+from io import BytesIO
+
+from PIL import Image
 
 
 ScanningJob = namedtuple('ScanningJob', ['id', 'interval', 'end_time'])
@@ -19,11 +22,14 @@ class ScanCommand:
         start_time = datetime.now()
         data = self._scanner.scan()
         end_time = datetime.now()
-        scan = Scan(
-            data=data,
-            job_id=job.id,
-            start_time=start_time,
-            end_time=end_time,
-            digest='sha256:{}'.format(sha256(data).hexdigest()),
-        )
+        with Image.open(BytesIO(data)) as image:
+            scan = Scan(
+                data=data,
+                job_id=job.id,
+                start_time=start_time,
+                end_time=end_time,
+                digest='sha256:{}'.format(
+                    sha256(image.tobytes()).hexdigest()
+                ),
+            )
         self._scanstore.put(scan)
