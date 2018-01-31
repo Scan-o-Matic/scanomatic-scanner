@@ -4,6 +4,8 @@ import requests
 
 from scanomaticd.scanning import ScanningJob
 
+DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+
 
 class APIError(Exception):
     pass
@@ -37,12 +39,23 @@ class APIGateway:
             end_time=end,
         )
 
-    def update_status(self, job=None):
+    def update_status(
+        self, job=None, next_scheduled_scan=None, images_to_send=None
+    ):
         url = "{apibase}/scanners/{scannerid}/status".format(
             apibase=self.apibase, scannerid=self.scannerid)
 
+        if next_scheduled_scan:
+            next_scheduled_scan = _serialize_datetime(next_scheduled_scan)
+
         response = requests.put(
-            url, json={"job": job}, auth=(self.username, self.password)
+            url,
+            json={
+                "job": job,
+                "nextScheduledScan": next_scheduled_scan,
+                "imagesToSend": images_to_send,
+            },
+            auth=(self.username, self.password),
         )
         try:
             response.raise_for_status()
@@ -51,5 +64,9 @@ class APIGateway:
 
 
 def _parse_datetime(s):
-    naive = datetime.strptime(s, '%Y-%m-%dT%H:%M:%SZ')
+    naive = datetime.strptime(s, DATETIME_FORMAT)
     return naive.replace(tzinfo=timezone.utc)
+
+
+def _serialize_datetime(dt):
+    return dt.astimezone(timezone.utc).strftime(DATETIME_FORMAT)

@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime, timezone, timedelta
 from unittest.mock import MagicMock
 from http import HTTPStatus
 
@@ -8,19 +9,60 @@ from scanomaticd.apigateway import APIError
 
 class TestScannerHeartbeat:
 
-    def test_heartbeat_good_response(self):
-        apigateway = MagicMock()
+    @pytest.fixture
+    def daemon(self):
         daemon = MagicMock()
         daemon.get_scanning_job.return_value = None
-        heartbeat = HeartbeatCommand(apigateway)
-        heartbeat(daemon)
-        assert apigateway.update_status.called_once()
+        daemon.get_next_scheduled_scan.return_value = None
+        return daemon
 
-    def test_heartbeat_bad_response(self):
-        apigateway = MagicMock()
-        apigateway.update_status.side_effect = APIError("")
-        daemon = MagicMock()
-        daemon.get_scanning_job.return_value = None
-        heartbeat = HeartbeatCommand(apigateway)
+    @pytest.fixture
+    def apigateway(self):
+        return MagicMock()
+
+    @pytest.fixture
+    def store(self):
+        return ['Image 1', 'Image 55']
+
+    def test_heartbeat_good_response(self, daemon, apigateway, store):
+        heartbeat = HeartbeatCommand(apigateway, store)
         heartbeat(daemon)
-        assert apigateway.update_status.called_once()
+        apigateway.update_status.assert_called_once_with(
+            job=None, next_scheduled_scan=None, images_to_send=2,
+        )
+
+    def test_heartbeat_bad_response_doesnt_raise(
+        self, daemon, apigateway, store,
+    ):
+        apigateway.update_status.side_effect = APIError("")
+        heartbeat = HeartbeatCommand(apigateway, store)
+        heartbeat(daemon)
+
+    def test_heartbeat_with_scheduled_scan(self, daemon, apigateway, store):
+        now = datetime.now(tz=timezone.utc)
+        scheduled = now + timedelta(minutes=20)
+        daemon.get_next_scheduled_scan.return_value = scheduled
+        heartbeat = HeartbeatCommand(apigateway, store)
+        heartbeat(daemon)
+        apigateway.update_status.assert_called_once_with(
+            job=None, next_scheduled_scan=scheduled, images_to_send=2,
+        )
+
+    def test_heartbeat_with_job(self, daemon, apigateway, scanningjob, store):
+        daemon.get_scanning_job.return_value = scanningjob
+        heartbeat = HeartbeatCommand(apigateway, store)
+        heartbeat(daemon)
+        apigateway.update_status.assert_called_once_with(
+            job=scanningjob.id, next_scheduled_scan=None, images_to_send=2,
+        )
+
+    def test_hearbeat_with_no_images_to_send(
+        self, daemon, apigateway, scanningjob, store
+    ):
+        daemon.get_scanning_job.return_value = scanningjob
+        heartbeat = HeartbeatCommand(apigateway, store)
+        store.clear()
+        heartbeat(daemon)
+        apigateway.update_status.assert_called_once_with(
+            job=scanningjob.id, next_scheduled_scan=None, images_to_send=0,
+        )
