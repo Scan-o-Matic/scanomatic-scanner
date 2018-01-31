@@ -1,8 +1,5 @@
-from collections import namedtuple
-from datetime import datetime
 import logging
 
-from .apigateway import APIError
 
 LOG = logging.getLogger(__name__)
 

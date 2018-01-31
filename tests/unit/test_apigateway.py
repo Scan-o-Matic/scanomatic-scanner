@@ -130,6 +130,7 @@ class TestUpdateScannerStatus:
             )['imagesToSend'] == images_to_send
         )
 
+
 class TestPostScan:
     URI = 'http://example.com/api/scans'
 
