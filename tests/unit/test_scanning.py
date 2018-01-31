@@ -3,18 +3,8 @@ from hashlib import sha256
 from unittest.mock import MagicMock
 
 from freezegun import freeze_time
-import pytest
 
-from scanomaticd.scanning import ScanCommand, Scan, ScanningJob
-
-
-@pytest.fixture
-def scanningjob():
-    return ScanningJob(
-        id='abcd',
-        interval=timedelta(minutes=3),
-        end_time=datetime(1985, 10, 26, 1, 35)
-    )
+from scanomaticd.scanning import ScanCommand, Scan
 
 
 class FakeScanner:
@@ -33,12 +23,12 @@ def test_scancommand(scanningjob):
     scanstore = MagicMock()
     with freeze_time(now) as faketime:
         scanner = FakeScanner(fakedata, faketime)
-        scancommand = ScanCommand(scanningjob, scanner, scanstore)
-        scancommand.execute()
+        scancommand = ScanCommand(scanner, scanstore)
+        scancommand(scanningjob)
     scanstore.put.assert_called_with(
         Scan(
             data=fakedata,
-            job_id='abcd',
+            job_id=scanningjob.id,
             start_time=now,
             end_time=now + timedelta(minutes=1),
             digest='sha256:{}'.format(sha256(fakedata).hexdigest()),

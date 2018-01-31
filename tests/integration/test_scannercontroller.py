@@ -70,6 +70,7 @@ class TestScanimageScannerController:
         with pytest.raises(ScannerError, match='bla'):
             ScanimageScannerController()
 
+    @pytest.mark.slow
     @pytest.mark.usefixtures('usbscanner')
     def test_scan_output(self):
         scanner = ScanimageScannerController()
