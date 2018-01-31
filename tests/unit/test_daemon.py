@@ -146,7 +146,6 @@ class TestUpdateCommand:
     def test_run_every_minutes(self, daemon, fake_update_command):
         sleep(120)
         assert fake_update_command.calls == [
-            (0, call(daemon)),
             (60, call(daemon)),
             (120, call(daemon)),
         ]
@@ -160,4 +159,15 @@ class TestUploadCommand:
             (0, call()),
             (60, call()),
             (120, call()),
+        ]
+
+
+@pytest.mark.slow
+class TestHeartbeatCommand:
+    def test_run_every_minutes(self, daemon, fake_heartbeat_command):
+        sleep(120)
+        assert fake_heartbeat_command.calls == [
+            (0, call(daemon)),
+            (60, call(daemon)),
+            (120, call(daemon)),
         ]
