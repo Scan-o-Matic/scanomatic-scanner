@@ -3,6 +3,8 @@ import logging
 import subprocess
 import warnings
 
+from .image_compression import compress_image
+
 LOG = logging.getLogger(__name__)
 
 SCANIMAGE_OPTS = [
@@ -38,7 +40,7 @@ class ScanimageScannerController:
     def scan(self, compress=True):
         scanproc = self._run_scanimage('-d', self.device_name, *SCANIMAGE_OPTS)
         if compress:
-            return self._run_compress_image(scanproc.stdout).stdout
+            return compress_image(scanproc.stdout).stdout
         else:
             return scanproc.stdout
 
@@ -51,21 +53,6 @@ class ScanimageScannerController:
         LOG.debug('running scanimage command: %s', command)
         proc = subprocess.run(
             command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        try:
-            proc.check_returncode()
-        except subprocess.CalledProcessError:
-            raise ScannerError(proc.stderr.decode('utf-8'))
-        return proc
-
-    def _run_compress_image(self, stdin):
-        command = ['convert', '-', '-compress', 'lzw', '-']
-        LOG.debug('running tiff compression: %s', command)
-        proc = subprocess.run(
-            command,
-            input=stdin,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
