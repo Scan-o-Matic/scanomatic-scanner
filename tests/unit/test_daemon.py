@@ -134,3 +134,9 @@ class TestUpdateCommand:
             (60, call(daemon)),
             (120, call(daemon)),
         ]
+
+
+class TestStartTime:
+    def test_get_starttime(self, daemon):
+        now = datetime.now(tz=timezone.utc)
+        assert (now - daemon.get_start_time()).total_seconds() < 1
