@@ -81,7 +81,6 @@ class TestScanimageScannerController:
         assert img.height == 6000
         assert img.mode == PIL_8BITS_BW_MODE
 
-
     def test_scan_error(self, fakescanimage):
         fakescanimage.install()
         scanner = ScanimageScannerController()
