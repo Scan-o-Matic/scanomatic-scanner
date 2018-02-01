@@ -1,5 +1,6 @@
 FROM debian:9
 RUN apt-get update  && apt-get install -y \
+    imagemagick \
     libjpeg62-turbo-dev \
     libsane \
     libtiff5-dev \
