@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta, timezone
 from glob import glob
-from http import HTTPStatus
+try:
+    from http import HTTPStatus
+except ImportError:
+    import http.client as HTTPStatus
 import time
 import uuid
 import os
