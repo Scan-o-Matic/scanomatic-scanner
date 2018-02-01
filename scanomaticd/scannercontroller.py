@@ -36,12 +36,11 @@ class ScanimageScannerController:
             raise ScannerError('No scanner detected')
 
     def scan(self):
-        return self._run_scanimage(
-            '-d', self.device_name, *SCANIMAGE_OPTS).stdout
+        return self._run_scanimage('-d', self.device_name, *SCANIMAGE_OPTS)
 
     def _get_devices(self):
-        proc = self._run_scanimage('-f', '%d%n')
-        return [dev for dev in proc.stdout.decode('ascii').split()]
+        stdout = self._run_scanimage('-f', '%d%n')
+        return [dev for dev in stdout.decode('ascii').split()]
 
     def _run_scanimage(self, *args):
         command = ['scanimage', *args]
@@ -55,4 +54,4 @@ class ScanimageScannerController:
             proc.check_returncode()
         except subprocess.CalledProcessError:
             raise ScannerError(proc.stderr.decode('utf-8'))
-        return proc
+        return proc.stdout
