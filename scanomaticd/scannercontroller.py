@@ -3,8 +3,6 @@ import logging
 import subprocess
 import warnings
 
-from .image_compression import compress_image
-
 LOG = logging.getLogger(__name__)
 
 SCANIMAGE_OPTS = [
@@ -37,12 +35,9 @@ class ScanimageScannerController:
         else:
             raise ScannerError('No scanner detected')
 
-    def scan(self, compress=True):
-        scanproc = self._run_scanimage('-d', self.device_name, *SCANIMAGE_OPTS)
-        if compress:
-            return compress_image(scanproc.stdout).stdout
-        else:
-            return scanproc.stdout
+    def scan(self):
+        return self._run_scanimage(
+            '-d', self.device_name, *SCANIMAGE_OPTS).stdout
 
     def _get_devices(self):
         proc = self._run_scanimage('-f', '%d%n')

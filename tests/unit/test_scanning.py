@@ -23,7 +23,7 @@ class FakeScanner:
 @pytest.fixture
 def fakedata():
     fake = BytesIO()
-    Image.new('L', (4, 2)).save(fake, 'TIFF')
+    Image.new('L', (4, 2)).save(fake, 'TIFF', compression='tiff_lzw')
     fake.seek(0)
     return fake.read()
 

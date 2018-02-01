@@ -18,11 +18,16 @@ class ScanCommand:
         self._scanner = scanner
         self._scanstore = scanstore
 
-    def __call__(self, job):
+    def __call__(self, job, compress=True):
         start_time = datetime.now()
         data = self._scanner.scan()
         end_time = datetime.now()
         with Image.open(BytesIO(data)) as image:
+            if compress:
+                image_file = BytesIO()
+                image.save(image_file, format="TIFF", compression='tiff_lzw')
+                image_file.seek(0)
+                data = image_file.read()
             scan = Scan(
                 data=data,
                 job_id=job.id,
