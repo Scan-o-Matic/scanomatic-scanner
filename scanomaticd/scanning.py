@@ -14,23 +14,17 @@ Scan = namedtuple('Scan', [
 
 
 class ScanCommand:
-    def __init__(self, scanner, scanstore, compress=True):
+    def __init__(self, scanner, scanstore):
         self._scanner = scanner
         self._scanstore = scanstore
-        self._compress = compress
 
     def __call__(self, job):
         start_time = datetime.now()
         data = self._scanner.scan()
         end_time = datetime.now()
         with Image.open(BytesIO(data)) as image:
-            if self._compress:
-                image_file = BytesIO()
-                image.save(image_file, format="TIFF", compression='tiff_lzw')
-                image_file.seek(0)
-                data = image_file.read()
             scan = Scan(
-                data=data,
+                data=self._compress_image(image),
                 job_id=job.id,
                 start_time=start_time,
                 end_time=end_time,
@@ -39,3 +33,9 @@ class ScanCommand:
                 ),
             )
         self._scanstore.put(scan)
+
+    def _compress_image(self, image):
+        image_file = BytesIO()
+        image.save(image_file, format="TIFF", compression='tiff_lzw')
+        image_file.seek(0)
+        return image_file.read()
