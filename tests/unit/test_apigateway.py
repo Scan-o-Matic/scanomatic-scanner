@@ -130,6 +130,17 @@ class TestUpdateScannerStatus:
             )['imagesToSend'] == images_to_send
         )
 
+    @responses.activate
+    def test_update_status_posts_uptime(self, apigateway):
+        responses.add(responses.PUT, self.URI, body='null')
+        dt = datetime(1980, 3, 23, 13, 55, tzinfo=timezone.utc)
+        apigateway.update_status(start_time=dt)
+        assert (
+            json.loads(
+                responses.calls[0].request.body.decode()
+            )['startTime'] == '1980-03-23T13:55:00Z'
+        )
+
 
 class TestPostScan:
     URI = 'http://example.com/api/scans'

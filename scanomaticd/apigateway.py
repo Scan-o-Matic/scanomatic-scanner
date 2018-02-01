@@ -41,7 +41,8 @@ class APIGateway:
         )
 
     def update_status(
-        self, job=None, next_scheduled_scan=None, images_to_send=None
+        self, job=None, next_scheduled_scan=None, images_to_send=None,
+        start_time=None,
     ):
         url = "{apibase}/scanners/{scannerid}/status".format(
             apibase=self.apibase, scannerid=self.scannerid)
@@ -49,12 +50,16 @@ class APIGateway:
         if next_scheduled_scan:
             next_scheduled_scan = _serialize_datetime(next_scheduled_scan)
 
+        if start_time:
+            start_time = _serialize_datetime(start_time)
+
         response = requests.put(
             url,
             json={
                 "job": job,
                 "nextScheduledScan": next_scheduled_scan,
                 "imagesToSend": images_to_send,
+                "startTime": start_time,
             },
             auth=(self.username, self.password),
         )

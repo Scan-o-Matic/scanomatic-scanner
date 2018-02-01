@@ -1,5 +1,4 @@
-from datetime import datetime
-
+from datetime import datetime, timezone
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.jobstores.base import JobLookupError
 
@@ -20,7 +19,7 @@ class ScanDaemon:
             scheduler=BlockingScheduler
     ):
         self._scheduler = scheduler()
-
+        self._start_time = None
         self._scan_command = scan_command
         self._job = None
         self._scheduler.add_job(
@@ -73,6 +72,7 @@ class ScanDaemon:
         return self._job
 
     def start(self):
+        self._start_time = datetime.now(tz=timezone.utc)
         self._scheduler.start()
 
     def stop(self):
@@ -82,3 +82,6 @@ class ScanDaemon:
         job = self._scheduler.get_job(self.JOBID_SCANNING)
         if job:
             return job.next_run_time
+
+    def get_start_time(self):
+        return self._start_time
