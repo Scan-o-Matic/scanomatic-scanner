@@ -1,5 +1,6 @@
 from base64 import b64encode
 from datetime import datetime, timedelta, timezone
+import email
 from http import HTTPStatus
 
 import json
@@ -171,13 +172,6 @@ class TestPostScan:
     def test_send_data(self, scan, apigateway):
         responses.add(responses.POST, self.URI)
         apigateway.post_scan(scan)
-        print(dir(responses.calls[0].request))
-        print(responses.calls[0].request.body)
-        print(responses.calls[0].request.headers)
-        import email
-        content = email.message_from_bytes(responses.calls[0].request.body)
-        print(content.is_multipart())
-        print(content.get_payload())
         assert b'foobar' in responses.calls[0].request.body
 
     @responses.activate
@@ -204,7 +198,6 @@ class TestPostScan:
 
 
 def parse_request(request):
-    import email
     files = dict()
     data = dict()
     content = email.message_from_bytes(
