@@ -23,7 +23,7 @@ class FakeScanner:
 @pytest.fixture
 def fakedata():
     fake = BytesIO()
-    Image.new('L', (4, 2)).save(fake, 'TIFF', compression='tiff_lzw')
+    Image.new('L', (4, 2)).save(fake, 'TIFF')
     fake.seek(0)
     return fake.read()
 
@@ -35,7 +35,34 @@ def test_scancommand(scanningjob, fakedata):
         scanner = FakeScanner(fakedata, faketime)
         scancommand = ScanCommand(scanner, scanstore)
         scancommand(scanningjob)
+
     image = Image.open(BytesIO(fakedata))
+    image_data = BytesIO()
+    image.save(image_data, format='TIFF', compression="tiff_lzw")
+    image_data.seek(0)
+
+    scanstore.put.assert_called_with(
+        Scan(
+            data=image_data.read(),
+            job_id=scanningjob.id,
+            start_time=now,
+            end_time=now + timedelta(minutes=1),
+            digest='sha256:{}'.format(
+                sha256(image.tobytes()).hexdigest()),
+        ),
+    )
+
+
+def test_scancommand_no_compress(scanningjob, fakedata):
+    now = datetime(1985, 10, 26, 1, 20)
+    scanstore = MagicMock()
+    with freeze_time(now) as faketime:
+        scanner = FakeScanner(fakedata, faketime)
+        scancommand = ScanCommand(scanner, scanstore, False)
+        scancommand(scanningjob)
+
+    image = Image.open(BytesIO(fakedata))
+
     scanstore.put.assert_called_with(
         Scan(
             data=fakedata,
@@ -46,3 +73,12 @@ def test_scancommand(scanningjob, fakedata):
                 sha256(image.tobytes()).hexdigest()),
         ),
     )
+
+
+def test_compression(fakedata):
+    image = Image.open(BytesIO(fakedata))
+    image_data = BytesIO()
+    image.save(image_data, format='TIFF', compression="tiff_lzw")
+    image_data.seek(0)
+
+    assert image_data.read() != fakedata
