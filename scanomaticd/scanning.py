@@ -36,6 +36,6 @@ class ScanCommand:
 
     def _compress_image(self, image):
         image_file = BytesIO()
-        image.save(image_file, format="TIFF", compression='tiff_lzw')
+        image.save(image_file, format="TIFF", compression='tiff_adobe_deflate')
         image_file.seek(0)
         return image_file.read()

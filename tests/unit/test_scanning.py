@@ -38,7 +38,7 @@ def test_scancommand(scanningjob, fake_data):
 
     image = Image.open(BytesIO(fake_data))
     image_data = BytesIO()
-    image.save(image_data, format='TIFF', compression="tiff_lzw")
+    image.save(image_data, format='TIFF', compression="tiff_adobe_deflate")
     image_data.seek(0)
 
     scanstore.put.assert_called_with(
