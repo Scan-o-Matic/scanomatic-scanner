@@ -4,6 +4,7 @@ import requests
 
 from scanomaticd.scanning import ScanningJob
 
+
 DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 
@@ -61,6 +62,23 @@ class APIGateway:
                 "startTime": start_time,
             },
             auth=(self.username, self.password),
+        )
+        try:
+            response.raise_for_status()
+        except requests.RequestException as error:
+            raise APIError(str(error))
+
+    def post_scan(self, scan):
+        response = requests.post(
+            self.apibase + '/scans',
+            auth=(self.username, self.password),
+            data={
+                'scanJobId': scan.job_id,
+                'startTime': scan.start_time.strftime(DATETIME_FORMAT),
+                'endTime': scan.end_time.strftime(DATETIME_FORMAT),
+                'digest': scan.digest,
+            },
+            files={'image': scan.data},
         )
         try:
             response.raise_for_status()
