@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 import logging
 import os
 
@@ -7,7 +6,7 @@ from .communication import UpdateScanningJobCommand
 from .daemon import ScanDaemon
 from .heartbeat import HeartbeatCommand
 from .scannercontroller import ScanimageScannerController, ScannerError
-from .scanning import ScanCommand, ScanningJob
+from .scanning import ScanCommand
 from .scanstore import ScanStore
 from .uploading import UploadCommand
 
