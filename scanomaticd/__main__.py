@@ -19,11 +19,6 @@ LOG.setLevel(logging.DEBUG)
 
 LOG.info('Starting scanomaticd')
 
-scanjob = ScanningJob(
-    id='fake',
-    interval=timedelta(minutes=5),
-    end_time=datetime.now() + timedelta(minutes=15),
-)
 try:
     scanner = ScanimageScannerController()
 except ScannerError as error:
