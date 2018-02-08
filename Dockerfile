@@ -15,4 +15,4 @@ COPY scanomaticd /srv/scanomaticd
 
 WORKDIR /srv
 
-CMD python3 -m scanomaticd.main
+CMD python3 -m scanomaticd

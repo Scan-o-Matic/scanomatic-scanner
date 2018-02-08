@@ -16,13 +16,15 @@ class APIGateway:
     def __init__(self, apibase, scannerid, username, password):
         self.apibase = apibase
         self.scannerid = scannerid
-        self.username = username
-        self.password = password
+        self.session = requests.Session()
+        self.session.headers['User-Agent'] = (
+            'scanomaticd ({})'.format(requests.utils.default_user_agent())
+        )
+        self.session.auth = (username, password)
 
     def get_scanner_job(self):
-        response = requests.get(
+        response = self.session.get(
             self.apibase + '/scanners/{}/job'.format(self.scannerid),
-            auth=(self.username, self.password),
         )
         try:
             response.raise_for_status()
@@ -53,7 +55,7 @@ class APIGateway:
         if start_time:
             start_time = _serialize_datetime(start_time)
 
-        response = requests.put(
+        response = self.session.put(
             url,
             json={
                 "job": job,
@@ -61,7 +63,6 @@ class APIGateway:
                 "imagesToSend": images_to_send,
                 "startTime": start_time,
             },
-            auth=(self.username, self.password),
         )
         try:
             response.raise_for_status()
@@ -69,9 +70,8 @@ class APIGateway:
             raise APIError(str(error))
 
     def post_scan(self, scan):
-        response = requests.post(
+        response = self.session.post(
             self.apibase + '/scans',
-            auth=(self.username, self.password),
             data={
                 'scanJobId': scan.job_id,
                 'startTime': scan.start_time.strftime(DATETIME_FORMAT),
