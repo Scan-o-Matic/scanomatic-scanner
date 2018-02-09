@@ -95,7 +95,7 @@ def scanomatic():
 
 
 def test(tmpdir, scanomaticd, scannerid, scanomatic):
-    jitter = timedelta(minutes=1)  # time for the scanner to pick-up the job
+    jitter = timedelta(seconds=90)  # time for the scanner to pick-up the job
     scaninterval = timedelta(minutes=5)
     duration = 2 * scaninterval + jitter
 
