@@ -12,8 +12,9 @@ RUN pip3 install -r /tmp/requirements.txt
 
 COPY scanomaticd /srv/scanomaticd
 
+RUN mkdir /var/scanomaticd && chown nobody:nogroup /var/scanomaticd
+
+USER nobody
 VOLUME /var/scanomaticd
-
 WORKDIR /srv
-
 CMD python3 -m scanomaticd
