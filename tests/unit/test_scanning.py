@@ -23,7 +23,7 @@ class FakeScanner:
 @pytest.fixture
 def fake_data():
     fake = BytesIO()
-    Image.new('L', (4, 2)).save(fake, 'TIFF')
+    Image.new('L', (42, 42)).save(fake, 'TIFF')
     fake.seek(0)
     return fake.read()
 
@@ -37,11 +37,11 @@ def test_scancommand(scanningjob, fake_data):
         scancommand = ScanCommand(scanner, scanstore)
         scancommand(scanningjob)
 
-    image = Image.open(BytesIO(fake_data))
-    image_file = BytesIO()
-    image.save(image_file, format='TIFF', compression="tiff_adobe_deflate")
-    image_file.seek(0)
-    image_data = image_file.read()
+        image = Image.open(BytesIO(fake_data))
+        image_file = BytesIO()
+        image.save(image_file, format='TIFF', compression="tiff_adobe_deflate")
+        image_file.seek(0)
+        image_data = image_file.read()
 
     scanstore.put.assert_called_with(
         Scan(
@@ -62,4 +62,4 @@ def test_compression(fake_data):
     image_cmp = Image.open(BytesIO(comp_data))
 
     assert image_raw.tobytes() == image_cmp.tobytes()
-    assert fake_data != comp_data
+    assert len(comp_data) < len(fake_data)
