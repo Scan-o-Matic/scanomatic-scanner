@@ -31,26 +31,27 @@ def fake_data():
 def test_scancommand(scanningjob, fake_data):
     now = datetime(1985, 10, 26, 1, 20)
     scanstore = MagicMock()
+
     with freeze_time(now) as faketime:
         scanner = FakeScanner(fake_data, faketime)
         scancommand = ScanCommand(scanner, scanstore)
         scancommand(scanningjob)
 
-        image = Image.open(BytesIO(fake_data))
-        image_file = BytesIO()
-        image.save(image_file, format='TIFF', compression="tiff_adobe_deflate")
-        image_file.seek(0)
-        image_data = image_file.read()
+    image = Image.open(BytesIO(fake_data))
+    image_file = BytesIO()
+    image.save(image_file, format='TIFF', compression="tiff_adobe_deflate")
+    image_file.seek(0)
+    image_data = image_file.read()
 
-        scanstore.put.assert_called_with(
-            Scan(
-                data=image_data,
-                job_id=scanningjob.id,
-                start_time=now,
-                end_time=now + timedelta(minutes=1),
-                digest='sha256:{}'.format(sha256(image_data).hexdigest()),
-            ),
-        )
+    scanstore.put.assert_called_with(
+        Scan(
+            data=image_data,
+            job_id=scanningjob.id,
+            start_time=now,
+            end_time=now + timedelta(minutes=1),
+            digest='sha256:{}'.format(sha256(image_data).hexdigest()),
+        ),
+    )
 
 
 def test_compression(fake_data):
