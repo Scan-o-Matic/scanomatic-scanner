@@ -36,21 +36,21 @@ def test_scancommand(scanningjob, fake_data):
         scancommand = ScanCommand(scanner, scanstore)
         scancommand(scanningjob)
 
-    image = Image.open(BytesIO(fake_data))
-    image_data = BytesIO()
-    image.save(image_data, format='TIFF', compression="tiff_adobe_deflate")
-    image_data.seek(0)
+        image = Image.open(BytesIO(fake_data))
+        image_file = BytesIO()
+        image.save(image_file, format='TIFF', compression="tiff_adobe_deflate")
+        image_file.seek(0)
+        image_data = image_file.read()
 
-    scanstore.put.assert_called_with(
-        Scan(
-            data=image_data.read(),
-            job_id=scanningjob.id,
-            start_time=now,
-            end_time=now + timedelta(minutes=1),
-            digest='sha256:{}'.format(
-                sha256(image.tobytes()).hexdigest()),
-        ),
-    )
+        scanstore.put.assert_called_with(
+            Scan(
+                data=image_data,
+                job_id=scanningjob.id,
+                start_time=now,
+                end_time=now + timedelta(minutes=1),
+                digest='sha256:{}'.format(sha256(image_data).hexdigest()),
+            ),
+        )
 
 
 def test_compression(fake_data):

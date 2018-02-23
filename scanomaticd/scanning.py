@@ -23,15 +23,14 @@ class ScanCommand:
         data = self._scanner.scan()
         end_time = datetime.now()
         with Image.open(BytesIO(data)) as image:
-            scan = Scan(
-                data=self._compress_image(image),
-                job_id=job.id,
-                start_time=start_time,
-                end_time=end_time,
-                digest='sha256:{}'.format(
-                    sha256(image.tobytes()).hexdigest()
-                ),
-            )
+            data = self._compress_image(image)
+        scan = Scan(
+            data=data,
+            job_id=job.id,
+            start_time=start_time,
+            end_time=end_time,
+            digest='sha256:{}'.format(sha256(data).hexdigest()),
+        )
         self._scanstore.put(scan)
 
     def _compress_image(self, image):
