@@ -8,17 +8,21 @@ LOG = logging.getLogger(__name__)
 
 class HeartbeatCommand:
 
-    def __init__(self, apigateway, store):
+    def __init__(self, apigateway, store, scanner):
         self._apigateway = apigateway
         self._store = store
+        self._scannercontroller = scanner
 
     def __call__(self, daemon):
+        LOG.info('Reporting scanner status')
         currentjob = daemon.get_scanning_job()
         try:
             self._apigateway.update_status(
                 job=currentjob.id if currentjob else None,
                 next_scheduled_scan=daemon.get_next_scheduled_scan(),
                 images_to_send=len(self._store),
+                start_time=daemon.get_start_time(),
+                devices=self._scannercontroller.get_devices(),
             )
         except APIError as error:
             LOG.warning(

@@ -4,6 +4,7 @@ import requests
 
 from scanomaticd.scanning import ScanningJob
 
+
 DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 
@@ -15,13 +16,15 @@ class APIGateway:
     def __init__(self, apibase, scannerid, username, password):
         self.apibase = apibase
         self.scannerid = scannerid
-        self.username = username
-        self.password = password
+        self.session = requests.Session()
+        self.session.headers['User-Agent'] = (
+            'scanomaticd ({})'.format(requests.utils.default_user_agent())
+        )
+        self.session.auth = (username, password)
 
     def get_scanner_job(self):
-        response = requests.get(
+        response = self.session.get(
             self.apibase + '/scanners/{}/job'.format(self.scannerid),
-            auth=(self.username, self.password),
         )
         try:
             response.raise_for_status()
@@ -40,7 +43,12 @@ class APIGateway:
         )
 
     def update_status(
-        self, job=None, next_scheduled_scan=None, images_to_send=None
+        self,
+        job=None,
+        next_scheduled_scan=None,
+        images_to_send=None,
+        start_time=None,
+        devices=None,
     ):
         url = "{apibase}/scanners/{scannerid}/status".format(
             apibase=self.apibase, scannerid=self.scannerid)
@@ -48,14 +56,34 @@ class APIGateway:
         if next_scheduled_scan:
             next_scheduled_scan = _serialize_datetime(next_scheduled_scan)
 
-        response = requests.put(
+        if start_time:
+            start_time = _serialize_datetime(start_time)
+
+        response = self.session.put(
             url,
             json={
                 "job": job,
                 "nextScheduledScan": next_scheduled_scan,
                 "imagesToSend": images_to_send,
+                "startTime": start_time,
+                "devices": devices,
             },
-            auth=(self.username, self.password),
+        )
+        try:
+            response.raise_for_status()
+        except requests.RequestException as error:
+            raise APIError(str(error))
+
+    def post_scan(self, scan):
+        response = self.session.post(
+            self.apibase + '/scans',
+            data={
+                'scanJobId': scan.job_id,
+                'startTime': scan.start_time.strftime(DATETIME_FORMAT),
+                'endTime': scan.end_time.strftime(DATETIME_FORMAT),
+                'digest': scan.digest,
+            },
+            files={'image': scan.data},
         )
         try:
             response.raise_for_status()

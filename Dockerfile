@@ -12,9 +12,11 @@ RUN echo "usb 0x4b8 0x151" >> /etc/sane.d/epson2.conf
 COPY requirements.txt /tmp
 RUN pip3 install -r /tmp/requirements.txt
 
-
 COPY scanomaticd /srv/scanomaticd
 
-WORKDIR /srv
+RUN mkdir /var/scanomaticd && chown nobody:nogroup /var/scanomaticd
 
-CMD python3 -m scanomaticd.main
+USER nobody
+VOLUME /var/scanomaticd
+WORKDIR /srv
+CMD python3 -m scanomaticd

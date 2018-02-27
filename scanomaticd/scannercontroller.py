@@ -24,7 +24,7 @@ class ScannerError(Exception):
 
 class ScanimageScannerController:
     def __init__(self):
-        devices = self._get_devices()
+        devices = self.get_devices()
         if len(devices) == 1:
             self.device_name = devices[0]
         elif len(devices) > 1:
@@ -38,7 +38,7 @@ class ScanimageScannerController:
     def scan(self):
         return self._run_scanimage('-d', self.device_name, *SCANIMAGE_OPTS)
 
-    def _get_devices(self):
+    def get_devices(self):
         stdout = self._run_scanimage('-f', '%d%n')
         return [dev for dev in stdout.decode('ascii').split()]
 
