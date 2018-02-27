@@ -1,5 +1,6 @@
 FROM debian:9
 RUN apt-get update  && apt-get install -y \
+    imagemagick \
     libjpeg62-turbo-dev \
     libsane \
     libtiff5-dev \
@@ -13,6 +14,6 @@ RUN echo "usb 0x4b8 0x12c" >> /etc/sane.d/epson2.conf
 RUN echo "usb 0x4b8 0x151" >> /etc/sane.d/epson2.conf
 
 # This is a bit hackish but necessary because Jenkins runs container with the
-# UID of the jenkins user on the node and pytest wan't to find the home
+# UID of the jenkins user on the node and pytest want to find the home
 # directory of the current user.
 RUN useradd --uid 1001 --create-home jenkins
