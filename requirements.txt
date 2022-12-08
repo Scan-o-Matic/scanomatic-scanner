@@ -5,11 +5,22 @@
 #    pip-compile --output-file requirements.txt requirements.in
 #
 apscheduler==3.5.0
-certifi==2018.1.18        # via requests
-chardet==3.0.4            # via requests
-idna==2.6                 # via requests
+    # via -r requirements.in
+certifi==2022.12.7
+    # via requests
+chardet==3.0.4
+    # via requests
+idna==2.6
+    # via requests
 pytz==2017.3
+    # via
+    #   -r requirements.in
+    #   apscheduler
 requests==2.18.4
-six==1.11.0               # via apscheduler
-tzlocal==1.5.1            # via apscheduler
-urllib3==1.22             # via requests
+    # via -r requirements.in
+six==1.11.0
+    # via apscheduler
+tzlocal==1.5.1
+    # via apscheduler
+urllib3==1.22
+    # via requests
